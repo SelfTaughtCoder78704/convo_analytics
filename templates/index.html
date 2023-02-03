@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style></style>
+  </head>
+  <body style="margin-bottom: 200px">
+    <div class="linksOfAllKinds">
+      <a href="https://www.google.com">Google</a>
+      <a href="https://www.facebook.com">Facebook</a>
+      <a href="https://www.twitter.com">Twitter</a>
+    </div>
+    <div class="images">
+      <img
+        src="https://picsum.photos/200/300"
+        alt="random image"
+        data-ai="first image"
+      />
+      <img
+        src="https://picsum.photos/200/300"
+        alt="random image"
+        data-ai="second image"
+      />
+      <img
+        src="https://picsum.photos/200/300"
+        alt="random image"
+        data-ai="third image"
+      />
+    </div>
+
+    <script>
+      let events = [];
+
+      // record the load event and time
+      window.addEventListener("load", function () {
+        events.push(`Page loaded at ${new Date().toLocaleTimeString()}`);
+        console.log(events);
+      });
+      // Get all links with hrefs that don't start with "#"
+      const links = Array.from(
+        document.querySelectorAll("a[href]:not([href^='#'])")
+      );
+
+      // Add hover event listener to each link
+      links.forEach((link) => {
+        link.addEventListener("mouseover", function () {
+          events.push(`Mouse hovered over link with href: ${this.href}`);
+          console.log(events);
+        });
+      });
+
+      // Add click event listener to each link
+      links.forEach((link) => {
+        link.addEventListener("click", function () {
+          events.push(`Link with href: ${this.href} was clicked`);
+          console.log(events);
+        });
+      });
+
+      // Get all images
+      const images = Array.from(document.querySelectorAll("img"));
+
+      // Add hover event listener to each image
+      images.forEach((image) => {
+        image.addEventListener("mouseover", function () {
+          events.push(
+            `Mouse hovered over image with data-ai: ${this.dataset.ai}`
+          );
+          console.log(events);
+        });
+      });
+      // only send on disconnect
+      window.onbeforeunload = function () {
+        events.push(`Page unloaded at ${new Date().toLocaleTimeString()}`);
+        fetch("/summary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ events, email: "bobbynicholson78704@gmail.com" }),
+        });
+      };
+    </script>
+  </body>
+</html>
