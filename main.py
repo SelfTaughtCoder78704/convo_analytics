@@ -54,6 +54,8 @@ def hello_world():
     return render_template('index.html')
 
 
+################ REGISTER ROUTES ###########################################
+
 @app.route("/register_form", methods=["GET"])
 def display_register_form():
     message = request.args.get('message') or ''
@@ -78,8 +80,13 @@ def register():
     register_user(mongo, user_name, user_email, hashed_password)
     return render_template('register_form.html', message='User registered successfully')
 
+################ END REGISTER ROUTES ###########################################
+
+################ LOGIN/LOGOUT ROUTES AND FORM ###########################################
 
 # Define a form to handle the login information
+
+
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -91,28 +98,6 @@ class LoginForm(FlaskForm):
 def display_login_form():
     form = LoginForm()
     return render_template("login.html", form=form)
-
-
-# @app.route("/login", methods=["GET", "POST"])
-# def login():
-#     form = LoginForm()
-
-#     # Get the user details from the form
-#     user_email = form.email.data
-#     user_password = form.password.data
-#     print(user_email, user_password)
-
-#     # Check if the email is already registered
-#     if not email_already_registered(mongo, user_email):
-#         return render_template('login.html', form=form, message='Email not registered')
-
-#         # Check if the password is correct
-#     if not check_password(user_password, get_password(mongo, user_email)):
-#         return render_template('login.html', form=form, message='Incorrect password')
-
-#     session['email'] = user_email
-#     # Return the result of the redirect
-#     return redirect(url_for('display_dashboard'))
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -136,6 +121,16 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.clear()
+    return redirect(url_for("display_login_form"))
+
+################ END LOGIN/LOGOUT  ROUTES AND FORM ###########################################
+
+################ DASHBOARD ROUTE ###########################################
+
+
 @app.route("/dashboard", methods=["GET"])
 def display_dashboard():
     # Get the email from the session
@@ -146,14 +141,10 @@ def display_dashboard():
     my_user = found_user(mongo, email)
     return render_template('dashboard.html', email=email, user=my_user)
 
+################ END DASHBOARD ROUTE ###########################################
 
-@app.route("/logout", methods=["GET"])
-def logout():
-    session.clear()
-    return redirect(url_for("display_login_form"))
 
 ################ END ROUTES SETUP ###########################################
-
 
 if __name__ == '__main__':
     app.run(debug=True, PORT=os.getenv("PORT", default=5000))
