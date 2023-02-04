@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style></style>
+  </head>
+  <body>
+    <!-- register form -->
+    <!-- <form id="loginForm" method="POST" action="/login">
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" />
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" />
+      <button type="submit">Login</button>
+    </form> -->
+
+    <div class="anotherForm">
+      <form action="/login" method="POST">
+
+        {{ form.email() }}
+        {{ form.password.label() }}
+        {{ form.password() }}
+        {{ form.submit() }}
+      </form>
+
+    <script>
+      // const form = document.querySelector("form");
+
+      // form.addEventListener("submit", (event) => {
+      //   event.preventDefault();
+
+      //   const data = {
+      //     password: form.password.value,
+      //     email: form.email.value,
+      //   };
+
+      //   fetch("/login", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(data),
+      //   })
+      //     .then((response) => response.json())
+      //     .then((result) => {
+      //       console.log(result);
+      //     });
+      // });
+    </script>
+  </body>
+</html>
