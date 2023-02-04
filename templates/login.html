@@ -18,13 +18,13 @@
     </form> -->
 
     <div class="anotherForm">
-      <form action="/login" method="POST">
-
-        {{ form.email() }}
-        {{ form.password.label() }}
-        {{ form.password() }}
-        {{ form.submit() }}
+      <form method="post" action="/login">
+        {{ form.hidden_tag() }}
+        {{ form.email.label }} {{ form.email(size=32) }}
+        {{ form.password.label }} {{ form.password(size=32) }}
+        {{ form.submit }}
       </form>
+      
 
     <script>
       // const form = document.querySelector("form");

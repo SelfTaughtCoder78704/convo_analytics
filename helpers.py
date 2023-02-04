@@ -42,3 +42,6 @@ def email_already_registered(mongo, email):
         return True
 
     return False
+
+
+

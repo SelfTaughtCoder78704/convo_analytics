@@ -6,7 +6,7 @@ from flask import Flask, request, render_template, jsonify, redirect, url_for, s
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email
-
+from flask_wtf.csrf import CSRFProtect
 
 from helpers import (
     register_user,
@@ -27,6 +27,7 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = 'secret-key'
+csrf = CSRFProtect(app)
 
 ################ END APP SETUP ###########################################
 
@@ -55,7 +56,8 @@ def hello_world():
 
 @app.route("/register_form", methods=["GET"])
 def display_register_form():
-    return render_template("register_form.html")
+    message = request.args.get('message') or ''
+    return render_template("register_form.html", message=message)
 
 
 @app.route("/register", methods=["POST"])
@@ -74,7 +76,7 @@ def register():
     hashed_password = hash_password(user_password)
     # Register the user
     register_user(mongo, user_name, user_email, hashed_password)
-    return jsonify({'message': 'User registered successfully'})
+    return render_template('register_form.html', message='User registered successfully')
 
 
 # Define a form to handle the login information
@@ -82,6 +84,7 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+    csrfToken = StringField('csrfToken')
 
 
 @app.route("/login_form", methods=["GET"])
@@ -90,26 +93,47 @@ def display_login_form():
     return render_template("login.html", form=form)
 
 
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     form = LoginForm()
+
+#     # Get the user details from the form
+#     user_email = form.email.data
+#     user_password = form.password.data
+#     print(user_email, user_password)
+
+#     # Check if the email is already registered
+#     if not email_already_registered(mongo, user_email):
+#         return render_template('login.html', form=form, message='Email not registered')
+
+#         # Check if the password is correct
+#     if not check_password(user_password, get_password(mongo, user_email)):
+#         return render_template('login.html', form=form, message='Incorrect password')
+
+#     session['email'] = user_email
+#     # Return the result of the redirect
+#     return redirect(url_for('display_dashboard'))
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
 
-    # Get the user details from the form
-    user_email = form.email.data
-    user_password = form.password.data
-    print(user_email, user_password)
+    if form.validate_on_submit():
+        user_email = form.email.data
+        user_password = form.password.data
+        if not found_user(mongo, user_email):
+            return redirect(url_for('display_register_form', message='Email not registered'))
+        if not email_already_registered(mongo, user_email):
+            return render_template('login.html', form=form, message='Email not registered')
 
-    # Check if the email is already registered
-    if not email_already_registered(mongo, user_email):
-        return render_template('login.html', form=form, message='Email not registered')
+        if not check_password(user_password, get_password(mongo, user_email)):
+            return render_template('login.html', form=form, message='Incorrect password')
 
-        # Check if the password is correct
-    if not check_password(user_password, get_password(mongo, user_email)):
-        return render_template('login.html', form=form, message='Incorrect password')
+        session['email'] = user_email
+        return redirect(url_for('display_dashboard'))
 
-    session['email'] = user_email
-    # Return the result of the redirect
-    return redirect(url_for('display_dashboard'))
+    return render_template('login.html', form=form)
 
 
 @app.route("/dashboard", methods=["GET"])

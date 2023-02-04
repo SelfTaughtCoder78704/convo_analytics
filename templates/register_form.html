@@ -18,6 +18,12 @@
       <input type="email" name="email" id="email" />
       <button type="submit">Register</button>
     </form>
+    <!-- // if statement to check for messages -->
+
+    {% if message != '' %}
+    <p>{{ message }}</p>
+    <a href="/login">Login Again?</a>
+    {% endif %}
 
     <script>
       const form = document.querySelector("form");
