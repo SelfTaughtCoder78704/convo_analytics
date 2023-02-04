@@ -11,3 +11,4 @@ Werkzeug==2.2.2
 pymongo
 bcrypt
 Flask-WTF
+email-validator
