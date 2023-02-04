@@ -1,6 +1,5 @@
 # import smtplib
 # from email.mime.text import MIMEText
-import bcrypt
 from flask import Flask, request, render_template, jsonify, redirect, url_for
 # from langchain.chains.conversation.memory import ConversationBufferMemory
 # from langchain import OpenAI, ConversationChain
@@ -24,11 +23,15 @@ import pymongo
 from dotenv import load_dotenv
 load_dotenv()
 
+################ APP SETUP ###########################################
+
 app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = 'secret-key'
 
+################ END APP SETUP ###########################################
 
-# Replace the uri string with your MongoDB deployment's connection string.
+################ MONGO SETUP ###########################################
+
 conn_str = os.getenv("MONGO_URI")
 # set a 5-second connection timeout
 client = pymongo.MongoClient(conn_str, serverSelectionTimeoutMS=5000)
@@ -40,49 +43,14 @@ except Exception:
 
 mongo = client.get_database('eventbot')
 
-# llm = OpenAI(temperature=0)
-# conversation = ConversationChain(
-#     llm=llm,
-#     verbose=True,
-#     memory=ConversationBufferMemory()
-# )
+################ END MONGO SETUP #######################################
 
-# first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
-# convo = conversation.predict(input=first_input)
+################ ROUTES SETUP ###########################################
 
 
 @app.route("/")
 def hello_world():
     return render_template('index.html')
-
-
-# @app.route("/summary", methods=["POST"])
-# def summary():
-#     data = request.get_json()
-#     events = data.get("events", [])
-#     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
-#         str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
-#     summary = conversation.predict(input=prompt)
-
-#     # Send the email with the summary
-#     sender = 'bobbynicholson78704@gmail.com'
-#     recipient = data.get("email")
-#     password = os.getenv("EMAIL_PASSWORD")
-#     subject = "Summary of Frontend Events"
-#     text = summary
-
-#     msg = MIMEText(text)
-#     msg['Subject'] = subject
-#     msg['From'] = sender
-#     msg['To'] = recipient
-
-#     server = smtplib.SMTP('smtp.gmail.com', 587)
-#     server.starttls()
-#     server.login(sender, password)
-#     server.sendmail(sender, recipient, msg.as_string())
-#     server.quit()
-
-#     return jsonify({'summary': summary})
 
 
 @app.route("/register_form", methods=["GET"])
@@ -149,6 +117,48 @@ def display_dashboard():
     my_user = found_user(mongo, email)
     return render_template("dashboard.html", user=my_user)
 
+################ END ROUTES SETUP ###########################################
+
 
 if __name__ == '__main__':
     app.run(debug=True, PORT=os.getenv("PORT", default=5000))
+
+
+# llm = OpenAI(temperature=0)
+# conversation = ConversationChain(
+#     llm=llm,
+#     verbose=True,
+#     memory=ConversationBufferMemory()
+# )
+
+# first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
+# convo = conversation.predict(input=first_input)
+
+
+# @app.route("/summary", methods=["POST"])
+# def summary():
+#     data = request.get_json()
+#     events = data.get("events", [])
+#     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
+#         str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
+#     summary = conversation.predict(input=prompt)
+
+#     # Send the email with the summary
+#     sender = 'bobbynicholson78704@gmail.com'
+#     recipient = data.get("email")
+#     password = os.getenv("EMAIL_PASSWORD")
+#     subject = "Summary of Frontend Events"
+#     text = summary
+
+#     msg = MIMEText(text)
+#     msg['Subject'] = subject
+#     msg['From'] = sender
+#     msg['To'] = recipient
+
+#     server = smtplib.SMTP('smtp.gmail.com', 587)
+#     server.starttls()
+#     server.login(sender, password)
+#     server.sendmail(sender, recipient, msg.as_string())
+#     server.quit()
+
+#     return jsonify({'summary': summary})
