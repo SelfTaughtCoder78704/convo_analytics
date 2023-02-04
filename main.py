@@ -151,10 +151,6 @@ def display_dashboard():
 
 ################ END ROUTES SETUP ###########################################
 
-if __name__ == '__main__':
-    app.run(debug=True, PORT=os.getenv("PORT", default=5000))
-
-
 # llm = OpenAI(temperature=0)
 # conversation = ConversationChain(
 #     llm=llm,
@@ -193,3 +189,6 @@ if __name__ == '__main__':
 #     server.quit()
 
 #     return jsonify({'summary': summary})
+
+if __name__ == '__main__':
+    app.run(debug=True, PORT=os.getenv("PORT", default=5000))
