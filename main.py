@@ -26,10 +26,10 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = 'secret-key'
-# app.config["MONGO_URI"] = "mongodb://mongo:vsgmgOpwU5z7n6xHumzV@containers-us-west-160.railway.app:5887"
+
 
 # Replace the uri string with your MongoDB deployment's connection string.
-conn_str = "mongodb://mongo:vsgmgOpwU5z7n6xHumzV@containers-us-west-160.railway.app:5887"
+conn_str = os.getenv("MONGO_URI")
 # set a 5-second connection timeout
 client = pymongo.MongoClient(conn_str, serverSelectionTimeoutMS=5000)
 
@@ -108,7 +108,7 @@ def register():
     register_user(mongo, user_name, user_email, hashed_password)
     return jsonify({'message': 'User registered successfully'})
 
-    
+
 # Define a form to handle the login information
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
