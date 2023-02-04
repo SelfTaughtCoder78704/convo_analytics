@@ -55,34 +55,6 @@ def hello_world():
     return render_template('index.html')
 
 
-################ REGISTER ROUTES ###########################################
-
-@app.route("/register_form", methods=["GET"])
-def display_register_form():
-    message = request.args.get('message') or ''
-    return render_template("register_form.html", message=message)
-
-
-@app.route("/register", methods=["POST"])
-def register():
-    # Get the user details from the request
-    user_details = request.get_json()
-    user_name = user_details.get('username')
-    user_email = user_details.get('email')
-    user_password = user_details.get('password')
-    print(user_name, user_email, user_password)
-
-    # Check if the email is already registered
-    if email_already_registered(mongo, user_email):
-        return jsonify({'message': 'Email already registered'}), 400
-    # Hash the password
-    hashed_password = hash_password(user_password)
-    # Register the user
-    register_user(mongo, user_name, user_email, hashed_password)
-    return render_template('register_form.html', message='User registered successfully')
-
-################ END REGISTER ROUTES ###########################################
-
 ################ LOGIN/LOGOUT ROUTES AND FORM ###########################################
 
 # Define a form to handle the login information
@@ -132,6 +104,59 @@ def logout():
     return redirect(url_for("display_login_form"))
 
 ################ END LOGIN/LOGOUT  ROUTES AND FORM ###########################################
+
+################ REGISTER ROUTES ###########################################
+
+# Define a form to handle the registration information
+
+
+class RegisterForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Register')
+    csrfToken = StringField('csrfToken')
+
+
+@app.route("/register_form", methods=["GET"])
+def display_register_form():
+    form = RegisterForm()
+    message = request.args.get('message') or ''
+    return render_template("register_form.html", message=message, form=form)
+
+
+@app.route("/register", methods=["POST"])
+def register():
+    # Get the user details from the request
+    # user_details = request.get_json()
+    # user_name = user_details.get('username')
+    # user_email = user_details.get('email')
+    # user_password = user_details.get('password')
+    # print(user_name, user_email, user_password)
+
+    # # Check if the email is already registered
+    # if email_already_registered(mongo, user_email):
+    #     return jsonify({'message': 'Email already registered'}), 400
+    # # Hash the password
+    # hashed_password = hash_password(user_password)
+    # # Register the user
+    # register_user(mongo, user_name, user_email, hashed_password)
+    # return render_template('register_form.html', message='User registered successfully')
+
+    form = RegisterForm()
+    if form.validate_on_submit():
+        user_name = form.username.data
+        user_email = form.email.data
+        user_password = form.password.data
+        if email_already_registered(mongo, user_email):
+            return render_template('register_form.html', form=form, message='Email already registered')
+        hashed_password = hash_password(user_password)
+        register_user(mongo, user_name, user_email, hashed_password)
+        return redirect(url_for('display_login_form'))
+    return render_template('register_form.html', form=form)
+
+
+################ END REGISTER ROUTES ###########################################
 
 ################ DASHBOARD ROUTE ###########################################
 

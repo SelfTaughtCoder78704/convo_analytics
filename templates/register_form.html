@@ -62,7 +62,7 @@
   <body>
     <!-- register form -->
     <h2>Register Now</h2>
-    <form id="registerForm">
+    <!-- <form id="registerForm">
       <label for="username">Username</label>
       <input type="text" name="username" id="username" />
       <label for="password">Password</label>
@@ -70,38 +70,42 @@
       <label for="email">Email</label>
       <input type="email" name="email" id="email" />
       <button type="submit">Register</button>
-    </form>
+    </form> -->
     <!-- // if statement to check for messages -->
-
+    <form method="post" action="/register">
+      {{ form.hidden_tag() }} {{ form.username.label }} {{
+      form.username(size=32) }} {{ form.email.label }} {{ form.email(size=32) }}
+      {{ form.password.label }} {{ form.password(size=32) }} {{ form.submit }}
+    </form>
     {% if message != '' %}
     <p>{{ message }}</p>
     <a href="/login">Login Again?</a>
     {% endif %}
 
     <script>
-      const form = document.querySelector("form");
+      // const form = document.querySelector("form");
 
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
+      // form.addEventListener("submit", (event) => {
+      //   event.preventDefault();
 
-        const data = {
-          username: form.username.value,
-          password: form.password.value,
-          email: form.email.value,
-        };
+      //   const data = {
+      //     username: form.username.value,
+      //     password: form.password.value,
+      //     email: form.email.value,
+      //   };
 
-        fetch("/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        })
-          .then((response) => response.json())
-          .then((result) => {
-            console.log(result);
-          });
-      });
+      //   fetch("/register", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(data),
+      //   })
+      //     .then((response) => response.json())
+      //     .then((result) => {
+      //       console.log(result);
+      //     });
+      // });
     </script>
   </body>
 </html>
