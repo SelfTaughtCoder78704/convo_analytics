@@ -1,5 +1,6 @@
 # import smtplib
 # from email.mime.text import MIMEText
+from datetime import timedelta
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
 # from langchain.chains.conversation.memory import ConversationBufferMemory
 # from langchain import OpenAI, ConversationChain
@@ -115,7 +116,11 @@ def login():
         if not check_password(user_password, get_password(mongo, user_email)):
             return render_template('login.html', form=form, message='Incorrect password')
 
+        # Create a session for the user
+        session.permanent = True
+        app.permanent_session_lifetime = timedelta(minutes=30)
         session['email'] = user_email
+
         return redirect(url_for('display_dashboard'))
 
     return render_template('login.html', form=form)
