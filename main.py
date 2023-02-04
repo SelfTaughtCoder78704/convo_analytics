@@ -1,6 +1,6 @@
 # import smtplib
 # from email.mime.text import MIMEText
-from flask import Flask, request, render_template, jsonify, redirect, url_for
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session
 # from langchain.chains.conversation.memory import ConversationBufferMemory
 # from langchain import OpenAI, ConversationChain
 from flask_wtf import FlaskForm
@@ -107,15 +107,26 @@ def login():
     if not check_password(user_password, get_password(mongo, user_email)):
         return render_template('login.html', form=form, message='Incorrect password')
 
+    session['email'] = user_email
     # Return the result of the redirect
-    return redirect(url_for('display_dashboard', email=user_email))
+    return redirect(url_for('display_dashboard'))
 
 
 @app.route("/dashboard", methods=["GET"])
 def display_dashboard():
-    email = request.args.get("email")
+    # Get the email from the session
+    email = session.get("email")
+    if not email:
+        return redirect(url_for("display_login_form"))
+
     my_user = found_user(mongo, email)
-    return render_template("dashboard.html", user=my_user)
+    return render_template('dashboard.html', email=email, user=my_user)
+
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.clear()
+    return redirect(url_for("display_login_form"))
 
 ################ END ROUTES SETUP ###########################################
 
