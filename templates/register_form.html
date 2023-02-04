@@ -4,11 +4,64 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style></style>
+    <title>ConvoAnalytics | Register</title>
+    <style>
+      form {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        margin: 0 auto;
+      }
+
+      form label {
+        margin-top: 10px;
+      }
+
+      form input {
+        margin-top: 5px;
+      }
+
+      form button {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+
+      form button:hover {
+        background-color: #3e8e41;
+      }
+
+      p {
+        color: red;
+      }
+
+      a {
+        color: blue;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      h2 {
+        text-align: center;
+      }
+    </style>
   </head>
   <body>
     <!-- register form -->
+    <h2>Register Now</h2>
     <form id="registerForm">
       <label for="username">Username</label>
       <input type="text" name="username" id="username" />

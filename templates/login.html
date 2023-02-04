@@ -4,8 +4,56 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style></style>
+    <title>ConvoAnalytics | Login</title>
+    <style>
+      form {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        margin: 0 auto;
+      }
+
+      form label {
+        margin-top: 10px;
+      }
+
+      form input {
+        margin-top: 5px;
+      }
+
+      form input[type="submit"] {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+
+      form button:hover {
+        background-color: #3e8e41;
+      }
+
+      p {
+        color: red;
+      }
+
+      a {
+        color: blue;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+    </style>
   </head>
   <body>
     <!-- register form -->
@@ -17,7 +65,7 @@
       <button type="submit">Login</button>
     </form> -->
 
-    <div class="anotherForm">
+    <div class="loginForm">
       <form method="post" action="/login">
         {{ form.hidden_tag() }}
         {{ form.email.label }} {{ form.email(size=32) }}

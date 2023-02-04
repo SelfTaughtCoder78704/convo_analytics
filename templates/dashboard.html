@@ -1,5 +1,65 @@
-<h1>Welcome to the Dashboard</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ConvoAnalytics | Dashboard</title>
+    <style>
+      .btnGroup {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
 
-<p>Hello, {{user.name}}!</p>
+      .btn {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
 
-<a href="/logout">Logout</a>
+      .btn:hover {
+        background-color: #3e8e41;
+      }
+
+      .info {
+        background-color: #2196f3;
+        color: white;
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: 400;
+      }
+
+      .welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .welcome p {
+        font-size: 1.5rem;
+        font-weight: 400;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="welcome">
+      <h1>Welcome to the ConvoAnalytics Dashboard</h1>
+      <p>Hello, {{user.name}}!</p>
+      <a href="/logout" class="btn">Logout</a>
+    </div>
+  </body>
+</html>
