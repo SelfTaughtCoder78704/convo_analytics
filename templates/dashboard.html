@@ -4,16 +4,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ConvoAnalytics | Home</title>
+    <title>ConvoAnalytics | Dashboard</title>
     <style>
-      body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-      }
-    
       .btnGroup {
         display: flex;
         flex-direction: column;
@@ -21,7 +13,7 @@
         justify-content: center;
         height: 100vh;
       }
-    
+
       .btn {
         background-color: #4caf50;
         border: none;
@@ -34,29 +26,40 @@
         margin: 4px 2px;
         cursor: pointer;
       }
-    
+
       .btn:hover {
         background-color: #3e8e41;
       }
-    
+
       .info {
         background-color: #2196f3;
         color: white;
       }
-    
+
       h1 {
         font-size: 3rem;
         font-weight: 400;
       }
+
+      .welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .welcome p {
+        font-size: 1.5rem;
+        font-weight: 400;
+      }
     </style>
-    
   </head>
   <body>
-    <h1>Welcome to ConvoAnalytics</h1>
-    <div class="btnGroup">
-      <a href="/register_form" class="btn">Register</a>
-      <a href="/login_form" class="btn info">Login</a>
+    <div class="welcome">
+      <h1>Welcome to the ConvoAnalytics Dashboard</h1>
+      <p>Hello, {{user.name}}!</p>
+      <a href="/logout" class="btn">Logout</a>
     </div>
   </body>
 </html>
-
