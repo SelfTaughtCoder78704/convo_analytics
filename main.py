@@ -34,7 +34,7 @@ csrf = CSRFProtect(app)
 
 ################ MONGO SETUP ###########################################
 
-conn_str = os.getenv("MONGO_URI")
+conn_str = os.getenv("MONGO_URL")
 # set a 5-second connection timeout
 client = pymongo.MongoClient(conn_str, serverSelectionTimeoutMS=5000)
 
