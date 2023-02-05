@@ -107,7 +107,7 @@
         <h2>Your Sites</h2>
         <ul>
           {% for site in sites %}
-          <li>{{ site.client_site }}</li>
+          <a href="/site/{{site._id}}"> {{site.client_site }}</a>
           {% endfor %}
         </ul>
       </div>

@@ -218,6 +218,7 @@ def set_site():
         mongo.db.users.update_one(
             {'_id': my_user['_id']},
             {'$push': {'client_sites': client_site}}
+
         )
 
         return redirect(url_for('display_dashboard'))
