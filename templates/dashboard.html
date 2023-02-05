@@ -31,6 +31,29 @@
         background-color: #3e8e41;
       }
 
+      form input[type="submit"] {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+
+      form input[type="submit"]:hover {
+        background-color: #3e8e41;
+      }
+
+      form input[type="text"] {
+        width: 300px;
+        height: 30px;
+        border: 1px solid #ccc;
+      }
+
       .info {
         background-color: #2196f3;
         color: white;
@@ -46,12 +69,24 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
       }
 
       .welcome p {
         font-size: 1.5rem;
         font-weight: 400;
+      }
+
+      .setYourSite {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .yourSites {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
       }
     </style>
   </head>
@@ -60,6 +95,22 @@
       <h1>Welcome to the ConvoAnalytics Dashboard</h1>
       <p>Hello, {{user.name}}!</p>
       <a href="/logout" class="btn">Logout</a>
+    </div>
+    <div class="dash">
+      <div class="setYourSite">
+        <form action="/set_site" method="POST">
+          {{ form.hidden_tag() }} {{ form.client_site.label }}
+          {{form.client_site(size=32) }} {{ form.submit }}
+        </form>
+      </div>
+      <div class="yourSites">
+        <h2>Your Sites</h2>
+        <ul>
+          {% for site in sites %}
+          <li>{{ site.client_site }}</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </body>
 </html>

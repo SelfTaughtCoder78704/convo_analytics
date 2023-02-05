@@ -1,5 +1,6 @@
 # import smtplib
 # from email.mime.text import MIMEText
+# from flask_cors import CORS
 from datetime import timedelta
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
 # from langchain.chains.conversation.memory import ConversationBufferMemory
@@ -24,13 +25,6 @@ import pymongo
 from dotenv import load_dotenv
 load_dotenv()
 
-################ APP SETUP ###########################################
-
-app = Flask(__name__, template_folder='templates')
-app.config['SECRET_KEY'] = 'secret-key'
-csrf = CSRFProtect(app)
-
-################ END APP SETUP ###########################################
 
 ################ MONGO SETUP ###########################################
 
@@ -46,6 +40,30 @@ except Exception:
 mongo = client.get_database('eventbot')
 
 ################ END MONGO SETUP #######################################
+
+
+################ APP SETUP ###########################################
+
+app = Flask(__name__, template_folder='templates')
+################ CORS SETUP #################
+# approved_sites = mongo.db.client_sites.find()
+# def allow_cors(response):
+#     origin = request.headers.get('Origin', '')
+#     if origin in approved_sites:
+#         response.headers['Access-Control-Allow-Origin'] = origin
+#     return response
+
+
+# cors = CORS(app, resources={r"/*": {"origins": "*"}},
+#             attach_to_all=False, automatic_options=False)
+# app.after_request(allow_cors)
+################ END CORS SETUP #################
+
+app.config['SECRET_KEY'] = 'secret-key'
+csrf = CSRFProtect(app)
+
+################ END APP SETUP ###########################################
+
 
 ################ ROUTES SETUP ###########################################
 
@@ -160,18 +178,50 @@ def register():
 
 ################ DASHBOARD ROUTE ###########################################
 
+# form for setting client site url
+class ClientSiteForm(FlaskForm):
+    client_site = StringField('Client Site', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    csrfToken = StringField('csrfToken')
+
 
 @app.route("/dashboard", methods=["GET"])
 def display_dashboard():
-    # Get the email from the session
-    email = session.get("email")
-    if not email:
+    # Check if the user is logged in
+    if not session.get("email"):
         return redirect(url_for("display_login_form"))
 
-    my_user = found_user(mongo, email)
-    return render_template('dashboard.html', email=email, user=my_user)
+    client_form = ClientSiteForm()
+
+    email = session['email']
+
+    my_user = found_user(mongo, session['email'])
+    my_client_sites = mongo.db.client_sites.find({'user': my_user['_id']})
+    return render_template('dashboard.html', email=email, user=my_user, form=client_form, sites=my_client_sites)
 
 ################ END DASHBOARD ROUTE ###########################################
+
+
+@app.route("/set_site", methods=['POST'])
+def set_site():
+    client_form = ClientSiteForm()
+    my_user = found_user(mongo, session['email'])
+    if client_form.validate_on_submit():
+        client_site = client_form.client_site.data
+
+        # create a mew collection for the client_sites add the client site to the collection and link it to the user
+        mongo.db.client_sites.insert_one(
+            {'client_site': client_site, 'user': my_user['_id']}
+        )
+
+        # add the client site to the user
+        mongo.db.users.update_one(
+            {'_id': my_user['_id']},
+            {'$push': {'client_sites': client_site}}
+        )
+
+        return redirect(url_for('display_dashboard'))
+    return render_template('dashboard.html', form=client_form)
 
 
 ################ END ROUTES SETUP ###########################################
@@ -212,8 +262,6 @@ def display_dashboard():
 #     server.login(sender, password)
 #     server.sendmail(sender, recipient, msg.as_string())
 #     server.quit()
-
 #     return jsonify({'summary': summary})
-
 if __name__ == '__main__':
     app.run(debug=True, PORT=os.getenv("PORT", default=5000))
