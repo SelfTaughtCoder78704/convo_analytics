@@ -201,29 +201,38 @@ def display_dashboard():
 
 ################ END DASHBOARD ROUTE ###########################################
 
+################ CLIENT ADDS SITE ROUTE ###############
 
 @app.route("/set_site", methods=['POST'])
 def set_site():
     client_form = ClientSiteForm()
     my_user = found_user(mongo, session['email'])
+    user_sites = mongo.db.client_sites.find({'user': my_user['_id']})
     if client_form.validate_on_submit():
         client_site = client_form.client_site.data
+
+        # check if the user has reached their limit of 2 sites on FREE account_type
+        if my_user['usage'] >= 2:
+            # redirect to dashboard with message
+            
+            return render_template('dashboard.html', form=client_form, sites=user_sites, message='You have reached your limit of 2 sites', user=my_user)
 
         # create a mew collection for the client_sites add the client site to the collection and link it to the user
         mongo.db.client_sites.insert_one(
             {'client_site': client_site, 'user': my_user['_id']}
         )
 
-        # add the client site to the user
+        # add the client site to the user and increment the usage
         mongo.db.users.update_one(
             {'_id': my_user['_id']},
-            {'$push': {'client_sites': client_site}}
-
+            {'$push': {'client_sites': client_site}, '$inc': {'usage': 1}}
         )
 
         return redirect(url_for('display_dashboard'))
-    return render_template('dashboard.html', form=client_form)
+    return render_template('dashboard.html', form=client_form, sites=user_sites, user=my_user)
 
+
+################ END CLIENT ADDS SITE ROUTE ############
 
 ################ END ROUTES SETUP ###########################################
 
