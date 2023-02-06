@@ -2,11 +2,12 @@
 # from email.mime.text import MIMEText
 # from flask_cors import CORS
 from datetime import timedelta
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session
+from bson import ObjectId
+from flask import Flask, Response, request, render_template, jsonify, redirect, url_for, session
 # from langchain.chains.conversation.memory import ConversationBufferMemory
 # from langchain import OpenAI, ConversationChain
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired, Email
 from flask_wtf.csrf import CSRFProtect
 
@@ -203,6 +204,7 @@ def display_dashboard():
 
 ################ CLIENT ADDS SITE ROUTE ###############
 
+
 @app.route("/set_site", methods=['POST'])
 def set_site():
     client_form = ClientSiteForm()
@@ -211,21 +213,22 @@ def set_site():
     if client_form.validate_on_submit():
         client_site = client_form.client_site.data
 
-        # check if the user has reached their limit of 2 sites on FREE account_type
-        if my_user['usage'] >= 2:
+        # check if the user has reached their limit of 1 site on FREE account_type
+        if len(my_user['client_sites']) >= 1 and my_user['account_type'] == 'FREE':
             # redirect to dashboard with message
-            
-            return render_template('dashboard.html', form=client_form, sites=user_sites, message='You have reached your limit of 2 sites', user=my_user)
+
+            return render_template('dashboard.html', form=client_form, sites=user_sites, message='You have reached your limit of 1 site on FREE plan', user=my_user)
 
         # create a mew collection for the client_sites add the client site to the collection and link it to the user
         mongo.db.client_sites.insert_one(
-            {'client_site': client_site, 'user': my_user['_id']}
+            {'client_site': client_site,
+                'user': my_user['_id'], 'elements': []}
         )
 
         # add the client site to the user and increment the usage
         mongo.db.users.update_one(
             {'_id': my_user['_id']},
-            {'$push': {'client_sites': client_site}, '$inc': {'usage': 1}}
+            {'$push': {'client_sites': client_site}}
         )
 
         return redirect(url_for('display_dashboard'))
@@ -233,6 +236,120 @@ def set_site():
 
 
 ################ END CLIENT ADDS SITE ROUTE ############
+
+################ VIEW SINGLE SITE ROUTE ############
+
+# form for adding elements
+
+class AddElementForm(FlaskForm):
+    elements = SelectMultipleField('Elements', choices=[(
+        'button', 'Buttons'), ('a', 'Links'), ('img', 'Images'), ('form', 'Forms')])
+    submit = SubmitField('Submit')
+    csrfToken = StringField('csrfToken')
+
+
+@app.route("/site/<site_id>", methods=['GET'])
+def view_site(site_id):
+    element_form = AddElementForm()
+    # Check if the user is logged in
+    if not session.get("email"):
+        return redirect(url_for("display_login_form"))
+
+    my_user = found_user(mongo, session['email'])
+    my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
+    my_client_site_events = mongo.db.client_site_events.find(
+        {'client_site': my_client_site['client_site']})
+    return render_template('site.html', user=my_user, site=my_client_site, events=my_client_site_events, form=element_form)
+
+################ END VIEW SINGLE SITE ROUTE ############
+
+################ ADD ELEMENTS TO SITE ROUTE ############
+
+
+@app.route("/site/set_elements/<site_id>", methods=['POST'])
+def set_elements(site_id):
+    element_form = AddElementForm()
+    my_user = found_user(mongo, session['email'])
+    my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
+    my_client_site_events = mongo.db.client_site_events.find(
+        {'client_site': my_client_site['client_site']})
+    if element_form.validate_on_submit():
+        elements = element_form.elements.data
+
+        # add the elements to the client site
+        mongo.db.client_sites.update_one(
+            {'_id': ObjectId(site_id)},
+            # OVERWRITE THE WHOLE ARRAY
+            {'$set': {'elements': elements}}
+        )
+
+        return redirect(url_for('view_site', site_id=site_id))
+    return render_template('site.html', user=my_user, site=my_client_site, events=my_client_site_events, form=element_form)
+
+################ END ADD ELEMENTS TO SITE ROUTE ############
+
+################ GENERATE SCRIPT ROUTE ############
+
+
+@app.route("/site/generate_script/<site_id>", methods=['GET'])
+def generate_script(site_id):
+    my_user = found_user(mongo, session['email'])
+    my_client_site = mongo.db.client_sites.find_one({'user': my_user['_id']})
+
+    # get the elements from the client site
+    elements = my_client_site['elements']
+    # generate a javascript script with query selectors for the elements
+    script = f"""
+    let timeLoaded;
+    window.onload = function() {{
+        timeLoaded = new Date()
+    }}
+    window.onbeforeunload = function() {{
+        let timeLeft = new Date()
+        let timeSpent = timeLeft - timeLoaded
+
+        console.log(timeSpent)
+        console.log(timeLoaded)
+        console.log(timeLeft)
+    }}
+    const elements = {elements}
+    elements.forEach(element => {{
+        const elementList = document.querySelectorAll(element)
+        elementList.forEach(element => {{
+            element.addEventListener('click', (e) => {{
+                const event = {{
+                    'element': e.target.nodeName,
+                    'event': e.type,
+                    'client_site': '{my_client_site['client_site']}',
+                    'value': e.target.textContent.trim()
+                }}
+                console.log(event)
+               
+            }})
+        }})
+        elementList.forEach(element => {{
+            element.addEventListener('mouseover', (e) => {{
+                const event = {{
+                    'element': e.target.nodeName,
+                    'event': e.type,
+                    'client_site': '{my_client_site['client_site']}',
+                    'value': e.target.textContent.trim()
+                }}
+                console.log(event)
+            }})
+        }})
+    }})
+    """
+    # add the script to the client site
+    mongo.db.client_sites.update_one(
+        {'_id': ObjectId(site_id)},
+        {'$set': {'script': script}}
+    )
+    return Response(script, mimetype='text/javascript')
+
+
+################ END GENERATE SCRIPT ROUTE ############
+
 
 ################ END ROUTES SETUP ###########################################
 
@@ -266,7 +383,6 @@ def set_site():
 #     msg['Subject'] = subject
 #     msg['From'] = sender
 #     msg['To'] = recipient
-
 #     server = smtplib.SMTP('smtp.gmail.com', 587)
 #     server.starttls()
 #     server.login(sender, password)

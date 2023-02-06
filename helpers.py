@@ -7,7 +7,7 @@ def register_user(mongo, username, email, password):
         'email': email,
         'password': password,
         'account_type': 'FREE',
-        'usage': 0,
+        "client_sites": []
     }
     print(user)
 

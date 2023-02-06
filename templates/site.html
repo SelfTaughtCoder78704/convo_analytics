@@ -1,0 +1,44 @@
+<h2>USER: {{user.name}}</h2>
+<h3>SITE: {{site.client_site}}</h3>
+
+<div class="configureScript">
+  <h3>What would you like to target?</h3>
+  <div class="configOptions">
+    <form action="/site/set_elements/{{site._id}}" method="POST">
+      <div>
+        {{ form.hidden_tag() }} {{ form.elements.label }} {{
+        form.elements(rows=3, multiple=True) }}
+      </div>
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+</div>
+
+<!-- if site.elements length > 0: -->
+{% if site.elements|length > 0 %}
+<div class="thingYouAreTargeting">
+  <h3>Targeted Elements:</h3>
+  <div class="targetedElements">
+    {% for element in site.elements %}
+    <div class="targetedElement">
+      <p>{{element}}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="generateScript">
+    <a href="/site/generate_script/{{site._id}}">Generate Script</a>
+  </div>
+</div>
+{% endif %}
+
+<!-- if site.script -->
+{% if site.script %}
+<div class="script">
+  <h3>Script:</h3>
+  <div class="scriptCode">
+    <!-- <p>{{site.script}}</p> -->
+    <pre><code>{{site.script}}</code></pre>
+  </div>
+</div>
+{% endif %}
