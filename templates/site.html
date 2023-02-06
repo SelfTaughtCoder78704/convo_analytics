@@ -1,44 +1,68 @@
-<h2>USER: {{user.name}}</h2>
-<h3>SITE: {{site.client_site}}</h3>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SITE</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h2>USER: {{user.name}}</h2>
+    <h3>SITE: {{site.client_site}}</h3>
 
-<div class="configureScript">
-  <h3>What would you like to target?</h3>
-  <div class="configOptions">
-    <form action="/site/set_elements/{{site._id}}" method="POST">
-      <div>
-        {{ form.hidden_tag() }} {{ form.elements.label }} {{
-        form.elements(rows=3, multiple=True) }}
+    <div class="configureScript">
+      <h3>What would you like to target?</h3>
+      <div class="configOptions">
+        <form action="/site/set_elements/{{site._id}}" method="POST">
+          <div>
+            {{ form.hidden_tag() }} {{ form.elements.label }} {{
+            form.elements(rows=3, multiple=True) }}
+          </div>
+          <button type="submit" class="btn">Submit</button>
+        </form>
       </div>
-      <button type="submit" class="btn">Submit</button>
-    </form>
-  </div>
-</div>
-
-<!-- if site.elements length > 0: -->
-{% if site.elements|length > 0 %}
-<div class="thingYouAreTargeting">
-  <h3>Targeted Elements:</h3>
-  <div class="targetedElements">
-    {% for element in site.elements %}
-    <div class="targetedElement">
-      <p>{{element}}</p>
     </div>
-    {% endfor %}
-  </div>
 
-  <div class="generateScript">
-    <a href="/site/generate_script/{{site._id}}">Generate Script</a>
-  </div>
-</div>
-{% endif %}
+    <!-- if site.elements length > 0: -->
+    {% if site.elements|length > 0 %}
+    <div class="thingYouAreTargeting">
+      <h3>Targeted Elements:</h3>
+      <div class="targetedElements">
+        {% for element in site.elements %}
+        <div class="targetedElement">
+          <p>{{element}}</p>
+        </div>
+        {% endfor %}
+      </div>
 
-<!-- if site.script -->
-<!-- {% if site.script %}
-<div class="script">
-  <h3>Script:</h3>
-  <div class="scriptCode">
-    <p>{{site.script}}</p>
-    <pre><code>{{site.script}}</code></pre>
-  </div>
-</div>
-{% endif %} -->
+      <div class="generateScript">
+        <a id="siteId" href="/site/generate_script/{{site._id}}"
+          >Go To Script</a
+        >
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="script">
+      <h3>Script:</h3>
+      <div class="scriptCode">
+        <div class="clickToCopy">
+          <button class="btn" onclick="makeScript()">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      function makeScript() {
+        let baseUrl = window.location.origin;
+        let siteId = document.querySelector("#siteId");
+        let href = siteId.getAttribute("href");
+        let genScript = "<\script src='" + baseUrl + href + "'><\/script>";
+
+        console.log(genScript);
+
+        navigator.clipboard.writeText(genScript);
+      }
+    </script>
+  </body>
+</html>
