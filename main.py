@@ -295,8 +295,8 @@ def set_elements(site_id):
 
 @app.route("/site/generate_script/<site_id>", methods=['GET'])
 def generate_script(site_id):
-    my_user = found_user(mongo, session['email'])
-    my_client_site = mongo.db.client_sites.find_one({'user': my_user['_id']})
+
+    my_client_site = mongo.db.client_sites.find_one({'user': ObjectId(site_id)})
 
     # get the elements from the client site
     elements = my_client_site['elements']
