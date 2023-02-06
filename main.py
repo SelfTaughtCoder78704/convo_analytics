@@ -1,6 +1,6 @@
 # import smtplib
 # from email.mime.text import MIMEText
-# from flask_cors import CORS
+from flask_cors import CORS
 from datetime import timedelta
 from bson import ObjectId
 from flask import Flask, Response, request, render_template, jsonify, redirect, url_for, session
@@ -62,7 +62,9 @@ app = Flask(__name__, template_folder='templates')
 
 app.config['SECRET_KEY'] = 'secret-key'
 csrf = CSRFProtect(app)
-
+# allow CORS
+cors = CORS(app, resources={r"/*": {"origins": "*"}},
+            attach_to_all=False, automatic_options=False)
 ################ END APP SETUP ###########################################
 
 
