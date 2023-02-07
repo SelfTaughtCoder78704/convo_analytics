@@ -391,7 +391,8 @@ def generate_script(site_id):
                     fetch('/https://web-staging-staging.up.railway.app/summary', {{
                         method: 'POST',
                         headers: {{
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'site_id': '{site_id}'
                         }},
                         body: JSON.stringify(events)
                     }}).then(res => res.json())
@@ -416,7 +417,8 @@ def generate_script(site_id):
                     fetch('/https://web-staging-staging.up.railway.app/summary', {{
                         method: 'POST',
                         headers: {{
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'site_id': '{site_id}'
                         }},
                         body: JSON.stringify(events)
                     }}).then(res => res.json())
@@ -444,8 +446,15 @@ def generate_script(site_id):
 def summary():
     data = request.get_json()
     events = data.get("events", [])
+    # get the site id from the request header
+    site_id = request.headers.get('site_id')
 
-    print(events)
+    # get the client site from the database and update with the events
+    mongo.db.client_sites.find_one_and_update(
+        {'_id': ObjectId(site_id)},
+        {'$set': {'events': events}}
+    )
+
     return jsonify({"success": True})
 
 
