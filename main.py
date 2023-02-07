@@ -360,16 +360,20 @@ def generate_script(site_id):
     script = f"""
     let events = []
     let timeLoaded;
-    window.onload = function() {{
-        timeLoaded = new Date()
-    }}
     window.onbeforeunload = function() {{
         let timeLeft = new Date()
         let timeSpent = timeLeft - timeLoaded
-
-        console.log(timeSpent)
-        console.log(timeLoaded)
-        console.log(timeLeft)
+        events.push(event)
+        fetch('https://web-staging-staging.up.railway.app/summary', {{
+            method: 'POST',
+            headers: {{
+                'Content-Type': 'application/json',
+                'site_id': '{site_id}'
+            }},
+            body: JSON.stringify(events)
+        }}).then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.log(err))
     }}
     const elements = {elements}
     elements.forEach(element => {{
@@ -384,21 +388,7 @@ def generate_script(site_id):
                     'value': e.target.textContent.trim()
                 }}
                 console.log(event)
-                window.onbeforeunload = function() {{
-                    let timeLeft = new Date()
-                    let timeSpent = timeLeft - timeLoaded
-                    events.push(event)
-                    fetch('https://web-staging-staging.up.railway.app/summary', {{
-                        method: 'POST',
-                        headers: {{
-                            'Content-Type': 'application/json',
-                            'site_id': '{site_id}'
-                        }},
-                        body: JSON.stringify(events)
-                    }}).then(res => res.json())
-                    .then(data => console.log(data))
-                    .catch(err => console.log(err))
-                }}
+                events.push(event)
             }})
         }})
         elementList.forEach(element => {{
@@ -410,21 +400,7 @@ def generate_script(site_id):
                     'value': e.target.textContent.trim()
                 }}
                 console.log(event)
-                window.onbeforeunload = function() {{
-                    let timeLeft = new Date()
-                    let timeSpent = timeLeft - timeLoaded
-                    events.push(event)
-                    fetch('https://web-staging-staging.up.railway.app/summary', {{
-                        method: 'POST',
-                        headers: {{
-                            'Content-Type': 'application/json',
-                            'site_id': '{site_id}'
-                        }},
-                        body: JSON.stringify(events)
-                    }}).then(res => res.json())
-                    .then(data => console.log(data))
-                    .catch(err => console.log(err))
-                }}
+                events.push(event)
             }})
         }})
     }})
@@ -447,12 +423,14 @@ def summary():
     data = request.get_json()
     events = data.get("events", [])
     # get the site id from the request header
-    site_id = request.headers.get('site_id')
-
+    print(request.headers)
+    print(events)
+    site_id = request.headers.get('Site-Id')
+    print("site_id", site_id)
     # get the client site from the database and update with the events
     mongo.db.client_sites.update_one(
         {'_id': ObjectId(site_id)},
-        {'$set': {'events': events}}
+        {'$push': {'events': {'$each': events}}},
     )
 
     return jsonify({"success": True})
