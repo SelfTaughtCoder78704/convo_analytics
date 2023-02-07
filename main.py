@@ -51,11 +51,13 @@ app = Flask(__name__, template_folder='templates')
 
 approved_sites = mongo.db.client_sites.find()
 
+
 def allow_cors(response):
     origin = request.headers.get('Origin', '')
     if origin in approved_sites:
         response.headers['Access-Control-Allow-Origin'] = origin
     return response
+
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}},
             attach_to_all=False, automatic_options=False)
@@ -356,6 +358,7 @@ def generate_script(site_id):
     elements = my_client_site['elements']
     # generate a javascript script with query selectors for the elements
     script = f"""
+    let events = []
     let timeLoaded;
     window.onload = function() {{
         timeLoaded = new Date()
@@ -381,7 +384,20 @@ def generate_script(site_id):
                     'value': e.target.textContent.trim()
                 }}
                 console.log(event)
-               
+                window.onbeforeunload = function() {{
+                    let timeLeft = new Date()
+                    let timeSpent = timeLeft - timeLoaded
+                    events.push(event)
+                    fetch('/https://web-staging-staging.up.railway.app/summary', {{
+                        method: 'POST',
+                        headers: {{
+                            'Content-Type': 'application/json'
+                        }},
+                        body: JSON.stringify(events)
+                    }}).then(res => res.json())
+                    .then(data => console.log(data))
+                    .catch(err => console.log(err))
+                }}
             }})
         }})
         elementList.forEach(element => {{
@@ -393,6 +409,20 @@ def generate_script(site_id):
                     'value': e.target.textContent.trim()
                 }}
                 console.log(event)
+                window.onbeforeunload = function() {{
+                    let timeLeft = new Date()
+                    let timeSpent = timeLeft - timeLoaded
+                    events.push(event)
+                    fetch('/https://web-staging-staging.up.railway.app/summary', {{
+                        method: 'POST',
+                        headers: {{
+                            'Content-Type': 'application/json'
+                        }},
+                        body: JSON.stringify(events)
+                    }}).then(res => res.json())
+                    .then(data => console.log(data))
+                    .catch(err => console.log(err))
+                }}
             }})
         }})
     }})
@@ -407,6 +437,34 @@ def generate_script(site_id):
 
 ################ END GENERATE SCRIPT ROUTE ############
 
+
+@app.route("/summary", methods=["POST"])
+# exempt from csrf protection
+@csrf.exempt
+def summary():
+    data = request.get_json()
+    events = data.get("events", [])
+    # prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
+    #     str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
+    # summary = conversation.predict(input=prompt)
+
+    # Send the email with the summary
+    # sender = 'bobbynicholson78704@gmail.com'
+    # recipient = data.get("email")
+    # password = os.getenv("EMAIL_PASSWORD")
+    # subject = "Summary of Frontend Events"
+    # text = summary
+
+    # msg = MIMEText(text)
+    # msg['Subject'] = subject
+    # msg['From'] = sender
+    # msg['To'] = recipient
+    # server = smtplib.SMTP('smtp.gmail.com', 587)
+    # server.starttls()
+    # server.login(sender, password)
+    # server.sendmail(sender, recipient, msg.as_string())
+    # server.quit()
+    return jsonify({'summary': events})
 
 ################ END ROUTES SETUP ###########################################
 
