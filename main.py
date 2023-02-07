@@ -421,18 +421,17 @@ def generate_script(site_id):
 @csrf.exempt
 def summary():
     data = request.get_json()
-    events = data.get("events", [])
+    print('REQUEST DATA ', data)
+    events = data['events']
     # get the site id from the request header
     print(request.headers)
     print(events)
     site_id = request.headers.get('Site-Id')
-    print("site_id", site_id)
-    # get the client site from the database and update with the events
+
     mongo.db.client_sites.update_one(
         {'_id': ObjectId(site_id)},
-        {'$push': {'events': {'$each': events}}},
+        {'$set': {'events': events}}
     )
-
     return jsonify({"success": True})
 
 
