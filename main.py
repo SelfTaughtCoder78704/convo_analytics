@@ -444,27 +444,10 @@ def generate_script(site_id):
 def summary():
     data = request.get_json()
     events = data.get("events", [])
-    # prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
-    #     str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
-    # summary = conversation.predict(input=prompt)
 
-    # Send the email with the summary
-    # sender = 'bobbynicholson78704@gmail.com'
-    # recipient = data.get("email")
-    # password = os.getenv("EMAIL_PASSWORD")
-    # subject = "Summary of Frontend Events"
-    # text = summary
+    print(events)
+    return jsonify({"success": True})
 
-    # msg = MIMEText(text)
-    # msg['Subject'] = subject
-    # msg['From'] = sender
-    # msg['To'] = recipient
-    # server = smtplib.SMTP('smtp.gmail.com', 587)
-    # server.starttls()
-    # server.login(sender, password)
-    # server.sendmail(sender, recipient, msg.as_string())
-    # server.quit()
-    return jsonify({'summary': events})
 
 ################ END ROUTES SETUP ###########################################
 
@@ -493,7 +476,6 @@ def summary():
 #     password = os.getenv("EMAIL_PASSWORD")
 #     subject = "Summary of Frontend Events"
 #     text = summary
-
 #     msg = MIMEText(text)
 #     msg['Subject'] = subject
 #     msg['From'] = sender
