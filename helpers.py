@@ -45,3 +45,12 @@ def email_already_registered(mongo, email):
         return True
 
     return False
+
+
+
+def allow_cors(mongo, request, response):
+    approved_sites = mongo.db.client_sites.find()
+    origin = request.headers.get('Origin', '')
+    if origin in approved_sites:
+        response.headers['Access-Control-Allow-Origin'] = origin
+    return response

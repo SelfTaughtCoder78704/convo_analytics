@@ -17,7 +17,8 @@ from helpers import (
     check_password,
     found_user,
     get_password,
-    email_already_registered
+    email_already_registered,
+    allow_cors
 )
 
 
@@ -47,17 +48,19 @@ mongo = client.get_database('eventbot')
 
 app = Flask(__name__, template_folder='templates')
 ################ CORS SETUP #################
-# approved_sites = mongo.db.client_sites.find()
-# def allow_cors(response):
-#     origin = request.headers.get('Origin', '')
-#     if origin in approved_sites:
-#         response.headers['Access-Control-Allow-Origin'] = origin
-#     return response
 
+approved_sites = mongo.db.client_sites.find()
 
-# cors = CORS(app, resources={r"/*": {"origins": "*"}},
-#             attach_to_all=False, automatic_options=False)
-# app.after_request(allow_cors)
+def allow_cors(response):
+    origin = request.headers.get('Origin', '')
+    if origin in approved_sites:
+        response.headers['Access-Control-Allow-Origin'] = origin
+    return response
+
+cors = CORS(app, resources={r"/*": {"origins": "*"}},
+            attach_to_all=False, automatic_options=False)
+app.after_request(allow_cors)
+
 ################ END CORS SETUP #################
 
 app.config['SECRET_KEY'] = 'secret-key'
