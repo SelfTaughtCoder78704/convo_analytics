@@ -450,7 +450,7 @@ def summary():
     site_id = request.headers.get('site_id')
 
     # get the client site from the database and update with the events
-    mongo.db.client_sites.find_one_and_update(
+    mongo.db.client_sites.update_one(
         {'_id': ObjectId(site_id)},
         {'$set': {'events': events}}
     )
