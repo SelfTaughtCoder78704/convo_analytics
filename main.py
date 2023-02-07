@@ -388,7 +388,7 @@ def generate_script(site_id):
                     let timeLeft = new Date()
                     let timeSpent = timeLeft - timeLoaded
                     events.push(event)
-                    fetch('/https://web-staging-staging.up.railway.app/summary', {{
+                    fetch('https://web-staging-staging.up.railway.app/summary', {{
                         method: 'POST',
                         headers: {{
                             'Content-Type': 'application/json',
@@ -414,7 +414,7 @@ def generate_script(site_id):
                     let timeLeft = new Date()
                     let timeSpent = timeLeft - timeLoaded
                     events.push(event)
-                    fetch('/https://web-staging-staging.up.railway.app/summary', {{
+                    fetch('https://web-staging-staging.up.railway.app/summary', {{
                         method: 'POST',
                         headers: {{
                             'Content-Type': 'application/json',
