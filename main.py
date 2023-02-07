@@ -249,10 +249,19 @@ class AddElementForm(FlaskForm):
     submit = SubmitField('Submit')
     csrfToken = StringField('csrfToken')
 
+# form for editing site name
+
+
+class EditSiteForm(FlaskForm):
+    client_site = StringField('Client Site', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    csrfToken = StringField('csrfToken')
+
 
 @app.route("/site/<site_id>", methods=['GET'])
 def view_site(site_id):
     element_form = AddElementForm()
+    edit_site_form = EditSiteForm()
     # Check if the user is logged in
     if not session.get("email"):
         return redirect(url_for("display_login_form"))
@@ -261,9 +270,51 @@ def view_site(site_id):
     my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
     my_client_site_events = mongo.db.client_site_events.find(
         {'client_site': my_client_site['client_site']})
-    return render_template('site.html', user=my_user, site=my_client_site, events=my_client_site_events, form=element_form)
+    return render_template('site.html', user=my_user, site=my_client_site, events=my_client_site_events, form=element_form, edit=edit_site_form)
 
 ################ END VIEW SINGLE SITE ROUTE ############
+
+################ EDIT SITE NAME ROUTE ############
+
+
+@app.route("/site/edit_site/<site_id>", methods=['POST'])
+def edit_site(site_id):
+    edit_site_form = EditSiteForm()
+    my_user = found_user(mongo, session['email'])
+    my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
+
+    if edit_site_form.validate_on_submit():
+        client_site = edit_site_form.client_site.data
+
+        # update the client site name
+        mongo.db.client_sites.update_one(
+            {'_id': ObjectId(site_id)},
+            {'$set': {'client_site': client_site}}
+        )
+
+        # update the client site name in the user
+        # the user looks like this: {
+        #   "name": "user_one",
+        #   "email": "user@here.com",
+        #   "password": "$2b$12$PTNkAR8GPZA/1aSorZXNge/YOg2T./U.OwXMGnO5OeTF9s96fbcue",
+        #   "account_type": "FREE",
+        #   "client_sites": [
+        #       "client_site_one",
+        #   ]
+        # }
+        mongo.db.users.update_one(
+            {'_id': my_user['_id']},
+            {'$set': {'client_sites.$[elem]': client_site}},
+            array_filters=[{'elem': my_client_site['client_site']}]
+
+
+        )
+
+        return redirect(url_for('view_site', site_id=site_id))
+    return render_template('site.html', user=my_user, site=my_client_site, edit=edit_site_form)
+
+################ END EDIT SITE NAME ROUTE ############
+
 
 ################ ADD ELEMENTS TO SITE ROUTE ############
 
@@ -318,6 +369,7 @@ def generate_script(site_id):
     elements.forEach(element => {{
         const elementList = document.querySelectorAll(element)
         elementList.forEach(element => {{
+            
             element.addEventListener('click', (e) => {{
                 const event = {{
                     'element': e.target.nodeName,
