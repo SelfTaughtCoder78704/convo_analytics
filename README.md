@@ -13,3 +13,6 @@ DEMO https://flask-production-ec08.up.railway.app/
 
 - Install Python requirements `pip install -r requirements.txt`
 - Start the server for development `python3 main.py`
+source vtrak/bin/activate
+export FLASK_APP=main.py
+python3 -m flask run
