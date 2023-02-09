@@ -58,6 +58,7 @@ approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 def allow_cors(response):
     origin = request.headers.get('Origin', '')
     if origin in approved_sites:
+        print('origin', origin)
         response.headers['Access-Control-Allow-Origin'] = origin
     return response
 
