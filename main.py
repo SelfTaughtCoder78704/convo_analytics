@@ -372,7 +372,7 @@ def generate_script(site_id):
             method: 'POST',
             headers: {{
                 'Content-Type': 'application/json',
-                'site_id': '{site_id}'
+                'site_id': '{site_id}',
                 'client_id': '{my_client_site['user']}'
             }},
             body: JSON.stringify(events)
