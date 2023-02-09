@@ -5,12 +5,182 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SITE</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .top {
+        background: rgb(44, 87, 204);
+        color: white;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+      }
+      .editForm {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: fit-content;
+        font-family: sans-serif;
+        float: right;
+      }
+
+      form input[type="submit"] {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+
+      form input[type="text"] {
+        width: 300px;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        outline: none;
+      }
+
+      .btn {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+
+      form label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      form button:hover {
+        background-color: #3e8e41;
+      }
+
+      .configureScript {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+      }
+
+      #elements {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid gray;
+      }
+      .configOptions {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: fit-content;
+        font-family: sans-serif;
+      }
+
+      .thingYouAreTargeting {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+      }
+
+      .targetedElements {
+        background: rgb(28, 28, 28);
+        color: black;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+        background: white;
+        font-weight: bold;
+        padding: 20px;
+      }
+
+      .script {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+      }
+
+      .generateScript {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: fit-content;
+        font-family: sans-serif;
+      }
+
+      .scriptCode {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+        background: white;
+        padding: 20px;
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+      }
+
+      .clickToCopy {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: fit-content;
+        font-family: sans-serif;
+      }
+
+      .events {
+        background: rgb(28, 28, 28);
+        color: white;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+      }
+
+      .eventList {
+        background: rgb(28, 28, 28);
+        color: black;
+        padding: 20px;
+        width: 100%;
+        font-family: sans-serif;
+        background: white;
+        padding: 20px;
+      }
+    </style>
   </head>
   <body>
-    <h2>USER: {{user.name}}</h2>
-    <h3>SITE: {{site.client_site}}</h3>
-    <h4>Edit Site Address?</h4>
+    <div class="top">
+      <h2>USER: {{user.name}}</h2>
+      <h3>SITE: {{site.client_site}}</h3>
+    </div>
+
     <div class="editForm">
+      <h4>Edit Site Address?</h4>
       <form action="/site/edit_site/{{site._id}}" method="POST">
         {{ edit.hidden_tag() }} {{ edit.client_site.label }} {{
         edit.client_site() }} {{ edit.submit }}
@@ -33,19 +203,13 @@
     <!-- if site.elements length > 0: -->
     {% if site.elements|length > 0 %}
     <div class="thingYouAreTargeting">
-      <h3>Targeted Elements:</h3>
+      <h3>Your Targeted Elements:</h3>
       <div class="targetedElements">
         {% for element in site.elements %}
         <div class="targetedElement">
           <p>{{element}}</p>
         </div>
         {% endfor %}
-      </div>
-
-      <div class="generateScript">
-        <a id="siteId" href="/site/generate_script/{{site._id}}"
-          >Go To Script</a
-        >
       </div>
     </div>
     {% endif %}
@@ -55,6 +219,11 @@
       <div class="scriptCode">
         <div class="clickToCopy">
           <button class="btn" onclick="makeScript()">Copy to Clipboard</button>
+        </div>
+        <div class="generateScript">
+          <a id="siteId" class="btn" href="/site/generate_script/{{site._id}}"
+            >Go To Script</a
+          >
         </div>
       </div>
     </div>
