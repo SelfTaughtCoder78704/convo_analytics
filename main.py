@@ -1,6 +1,6 @@
 # import smtplib
 # from email.mime.text import MIMEText
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from datetime import timedelta
 from bson import ObjectId
 from flask import Flask, Response, request, render_template, jsonify, redirect, url_for, session
@@ -49,25 +49,23 @@ mongo = client.get_database('eventbot')
 app = Flask(__name__, template_folder='templates')
 ################ CORS SETUP #################
 
-approved_sites = mongo.db.client_sites.find()
-
-
 approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 
-print('approved_sites', approved_sites)
+cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
+            attach_to_all=False, automatic_options=False)
 
 
 def allow_cors(response):
     origin = request.headers.get('Origin', '')
     if origin in approved_sites:
-        print('origin', origin)
         response.headers['Access-Control-Allow-Origin'] = origin
+    else:
+        return response, 401
     return response
 
 
-cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
-            attach_to_all=False, automatic_options=False)
 app.after_request(allow_cors)
+
 
 ################ END CORS SETUP #################
 
@@ -429,6 +427,7 @@ def generate_script(site_id):
 # request looks like this: REQUEST DATA  [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]
 # REWRITE TO CREATE A PageData Object
 @app.route("/summary", methods=["POST"])
+@cross_origin(origins=approved_sites)
 # exempt from csrf protection
 @csrf.exempt
 def summary():
