@@ -373,6 +373,7 @@ def generate_script(site_id):
             headers: {{
                 'Content-Type': 'application/json',
                 'site_id': '{site_id}'
+                'client_id': '{my_client_site['user']}'
             }},
             body: JSON.stringify(events)
         }}).then(res => res.json())
