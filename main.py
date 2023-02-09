@@ -42,13 +42,6 @@ except Exception:
 mongo = client.get_database('eventbot')
 
 ################ END MONGO SETUP #######################################
-
-
-################ APP SETUP ###########################################
-
-app = Flask(__name__, template_folder='templates')
-################ CORS SETUP #################
-
 approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 
 server_site = 'https://web-staging-staging.up.railway.app'
@@ -56,6 +49,12 @@ server_site = 'https://web-staging-staging.up.railway.app'
 approved_sites.append(server_site)
 
 print(approved_sites)
+
+################ APP SETUP ###########################################
+
+app = Flask(__name__, template_folder='templates')
+################ CORS SETUP #################
+
 
 # cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
 #             attach_to_all=False, automatic_options=False)
