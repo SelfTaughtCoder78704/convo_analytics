@@ -273,11 +273,10 @@ def view_site(site_id):
 
     my_user = found_user(mongo, session['email'])
     my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
-    my_page_data = mongo.db.page_data.find(
-        {'site_id': site_id})
-    print(my_page_data)
+    my_page_data = list(mongo.db.page_data.find(
+        {'site_id': site_id}))
     if not my_page_data:
-        my_page_data = {}
+        my_page_data = []
 
     return render_template('site.html', user=my_user, site=my_client_site, events=my_page_data, form=element_form, edit=edit_site_form)
 
