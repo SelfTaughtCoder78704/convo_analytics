@@ -273,9 +273,13 @@ def view_site(site_id):
 
     my_user = found_user(mongo, session['email'])
     my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
-    my_client_site_events = mongo.db.client_site_events.find(
-        {'client_site': my_client_site['client_site']})
-    return render_template('site.html', user=my_user, site=my_client_site, events=my_client_site_events, form=element_form, edit=edit_site_form)
+    my_page_data = mongo.db.page_data.find_one(
+        {'site_id': site_id})
+    print(my_page_data)
+    if not my_page_data:
+        my_page_data = {}
+
+    return render_template('site.html', user=my_user, site=my_client_site, events=my_page_data, form=element_form, edit=edit_site_form)
 
 ################ END VIEW SINGLE SITE ROUTE ############
 
@@ -415,25 +419,34 @@ def generate_script(site_id):
 
 ################ END GENERATE SCRIPT ROUTE ############
 
-# request looks like this: REQUEST DATA  [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]
-
+# request looks like this: REQUEST DATA  {"events": [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]}
+# REWRITE TO CREATE A PageData Object
 @app.route("/summary", methods=["POST"])
 # exempt from csrf protection
 @csrf.exempt
 def summary():
     data = request.get_json()
     print('REQUEST DATA ', data)
-    events = data
+    events = data['events']
     # get the site id from the request header
     print(request.headers)
     print(events)
     site_id = request.headers.get('Site-Id')
+    client = request.headers.get('Client-Id')
 
-    mongo.db.client_sites.update_one(
-        {'_id': ObjectId(site_id)},
-        {'$set': {'events': events}}
+    # create a new page data object
+    page_data = mongo.db.page_data.insert_one({
+        'client_id': client,
+        'site_id': site_id,
+    })
+    # add the events to the page data object
+    for event in events:
+        mongo.db.page_data.update_one(
+            {'_id': ObjectId(page_data.inserted_id)},
+            {'$push': {'events': event}}
+        )
+    print('PAGE DATA ', page_data)
 
-    )
     return jsonify({"success": True})
 
 
