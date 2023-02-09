@@ -278,6 +278,8 @@ def view_site(site_id):
     if not my_page_data:
         my_page_data = []
 
+    print(my_page_data)
+
     return render_template('site.html', user=my_user, site=my_client_site, events=my_page_data, form=element_form, edit=edit_site_form)
 
 ################ END VIEW SINGLE SITE ROUTE ############
