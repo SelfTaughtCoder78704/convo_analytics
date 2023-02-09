@@ -51,7 +51,7 @@ app = Flask(__name__, template_folder='templates')
 
 approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 
-server_site = os.getenv('https://web-staging-staging.up.railway.app')
+server_site = 'https://web-staging-staging.up.railway.app'
 
 approved_sites.append(server_site)
 
