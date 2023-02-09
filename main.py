@@ -52,15 +52,17 @@ app = Flask(__name__, template_folder='templates')
 approved_sites = mongo.db.client_sites.find()
 
 
+approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
+
+
 def allow_cors(response):
     origin = request.headers.get('Origin', '')
     if origin in approved_sites:
-        print('origin approved')
         response.headers['Access-Control-Allow-Origin'] = origin
     return response
 
 
-cors = CORS(app, resources={r"/*": {"origins": "*"}},
+cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
             attach_to_all=False, automatic_options=False)
 app.after_request(allow_cors)
 
