@@ -50,7 +50,7 @@ app = Flask(__name__, template_folder='templates')
 ################ CORS SETUP #################
 
 approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
-approved_sites.append('https://web-staging-staging.up.railway.app')
+server_site = os.getenv('https://web-staging-staging.up.railway.app')
 
 cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
             attach_to_all=False, automatic_options=False)
@@ -58,7 +58,7 @@ cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
 
 def allow_cors(response):
     origin = request.headers.get('Origin', '')
-    if origin in approved_sites:
+    if origin in approved_sites or origin == server_site:
         response.headers['Access-Control-Allow-Origin'] = origin
     else:
         return make_response("Unauthorized", 401)
