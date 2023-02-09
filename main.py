@@ -431,6 +431,7 @@ def summary():
     events = data
     # get the site id from the request header
     print(request.headers)
+    print('EVENTS: ')
     print(events)
     site_id = request.headers.get('Site-Id')
     client = request.headers.get('Client-Id')
