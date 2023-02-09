@@ -55,20 +55,23 @@ server_site = 'https://web-staging-staging.up.railway.app'
 
 approved_sites.append(server_site)
 
-cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
-            attach_to_all=False, automatic_options=False)
+print(approved_sites)
+
+# cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
+#             attach_to_all=False, automatic_options=False)
+
+cors = CORS(app)
+
+# def allow_cors(response):
+#     origin = request.headers.get('Origin', '')
+#     if origin in approved_sites:
+#         response.headers['Access-Control-Allow-Origin'] = origin
+#     else:
+#         return make_response("Unauthorized", 401)
+#     return response
 
 
-def allow_cors(response):
-    origin = request.headers.get('Origin', '')
-    if origin in approved_sites:
-        response.headers['Access-Control-Allow-Origin'] = origin
-    else:
-        return make_response("Unauthorized", 401)
-    return response
-
-
-app.after_request(allow_cors)
+# app.after_request(allow_cors)
 
 
 ################ END CORS SETUP #################
@@ -84,7 +87,7 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}},
 ################ ROUTES SETUP ###########################################
 
 
-@app.route("/")
+@ app.route("/")
 def hello_world():
     return render_template('index.html')
 
@@ -101,13 +104,13 @@ class LoginForm(FlaskForm):
     csrfToken = StringField('csrfToken')
 
 
-@app.route("/login_form", methods=["GET"])
+@ app.route("/login_form", methods=["GET"])
 def display_login_form():
     form = LoginForm()
     return render_template("login.html", form=form)
 
 
-@app.route("/login", methods=["GET", "POST"])
+@ app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
 
@@ -132,7 +135,7 @@ def login():
     return render_template('login.html', form=form)
 
 
-@app.route("/logout", methods=["GET"])
+@ app.route("/logout", methods=["GET"])
 def logout():
     session.clear()
     return redirect(url_for("display_login_form"))
@@ -152,14 +155,14 @@ class RegisterForm(FlaskForm):
     csrfToken = StringField('csrfToken')
 
 
-@app.route("/register_form", methods=["GET"])
+@ app.route("/register_form", methods=["GET"])
 def display_register_form():
     form = RegisterForm()
     message = request.args.get('message') or ''
     return render_template("register_form.html", message=message, form=form)
 
 
-@app.route("/register", methods=["POST"])
+@ app.route("/register", methods=["POST"])
 def register():
     # Get the user details from the request
     # user_details = request.get_json()
@@ -201,7 +204,7 @@ class ClientSiteForm(FlaskForm):
     csrfToken = StringField('csrfToken')
 
 
-@app.route("/dashboard", methods=["GET"])
+@ app.route("/dashboard", methods=["GET"])
 def display_dashboard():
     # Check if the user is logged in
     if not session.get("email"):
@@ -220,7 +223,7 @@ def display_dashboard():
 ################ CLIENT ADDS SITE ROUTE ###############
 
 
-@app.route("/set_site", methods=['POST'])
+@ app.route("/set_site", methods=['POST'])
 def set_site():
     client_form = ClientSiteForm()
     my_user = found_user(mongo, session['email'])
@@ -271,7 +274,7 @@ class EditSiteForm(FlaskForm):
     csrfToken = StringField('csrfToken')
 
 
-@app.route("/site/<site_id>", methods=['GET'])
+@ app.route("/site/<site_id>", methods=['GET'])
 def view_site(site_id):
     element_form = AddElementForm()
     edit_site_form = EditSiteForm()
@@ -295,7 +298,7 @@ def view_site(site_id):
 ################ EDIT SITE NAME ROUTE ############
 
 
-@app.route("/site/edit_site/<site_id>", methods=['POST'])
+@ app.route("/site/edit_site/<site_id>", methods=['POST'])
 def edit_site(site_id):
     edit_site_form = EditSiteForm()
     my_user = found_user(mongo, session['email'])
@@ -337,7 +340,7 @@ def edit_site(site_id):
 ################ ADD ELEMENTS TO SITE ROUTE ############
 
 
-@app.route("/site/set_elements/<site_id>", methods=['POST'])
+@ app.route("/site/set_elements/<site_id>", methods=['POST'])
 def set_elements(site_id):
     element_form = AddElementForm()
     my_user = found_user(mongo, session['email'])
@@ -362,7 +365,7 @@ def set_elements(site_id):
 ################ GENERATE SCRIPT ROUTE ############
 
 
-@app.route("/site/generate_script/<site_id>", methods=['GET'])
+@ app.route("/site/generate_script/<site_id>", methods=['GET'])
 def generate_script(site_id):
 
     my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
@@ -392,7 +395,7 @@ def generate_script(site_id):
     elements.forEach(element => {{
         const elementList = document.querySelectorAll(element)
         elementList.forEach(element => {{
-            
+
             element.addEventListener('click', (e) => {{
                 const event = {{
                     'element': e.target.nodeName,
@@ -430,10 +433,10 @@ def generate_script(site_id):
 
 # request looks like this: REQUEST DATA  [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]
 # REWRITE TO CREATE A PageData Object
-@app.route("/summary", methods=["POST"])
-@cross_origin(origins=approved_sites)
+@ app.route("/summary", methods=["POST"])
+@ cross_origin(origins=approved_sites)
 # exempt from csrf protection
-@csrf.exempt
+@ csrf.exempt
 def summary():
     data = request.get_json()
     print('REQUEST DATA ', data)
