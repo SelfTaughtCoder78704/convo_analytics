@@ -367,7 +367,6 @@ def generate_script(site_id):
     window.onbeforeunload = function() {{
         let timeLeft = new Date()
         let timeSpent = timeLeft - timeLoaded
-        events.push(event)
         fetch('https://web-staging-staging.up.railway.app/summary', {{
             method: 'POST',
             headers: {{
