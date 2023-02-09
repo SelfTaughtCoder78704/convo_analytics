@@ -3,7 +3,7 @@
 from flask_cors import CORS, cross_origin
 from datetime import timedelta
 from bson import ObjectId
-from flask import Flask, Response, request, render_template, jsonify, redirect, url_for, session
+from flask import Flask, Response, make_response, request, render_template, jsonify, redirect, url_for, session
 # from langchain.chains.conversation.memory import ConversationBufferMemory
 # from langchain import OpenAI, ConversationChain
 from flask_wtf import FlaskForm
@@ -60,8 +60,9 @@ def allow_cors(response):
     if origin in approved_sites:
         response.headers['Access-Control-Allow-Origin'] = origin
     else:
-        return response, 401
+        return make_response("Unauthorized", 401)
     return response
+
 
 
 app.after_request(allow_cors)
