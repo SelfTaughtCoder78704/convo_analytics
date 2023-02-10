@@ -430,17 +430,6 @@ def generate_script(site_id):
 
 
 ################ END GENERATE SCRIPT ROUTE ############
-llm = OpenAI(temperature=0)
-conversation = ConversationChain(
-    llm=llm,
-    verbose=True,
-    memory=ConversationBufferMemory()
-)
-
-first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
-convo = conversation.predict(input=first_input)
-# request looks like this: REQUEST DATA  [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]
-# REWRITE TO CREATE A PageData Object
 
 
 @ app.route("/summary", methods=["POST"])
@@ -448,8 +437,6 @@ convo = conversation.predict(input=first_input)
 # exempt from csrf protection
 @ csrf.exempt
 def summary():
-
-    print(convo)
     data = request.get_json()
     print('REQUEST DATA ', data)
     events = data
@@ -472,25 +459,7 @@ def summary():
             {'$push': {'events': event}}
         )
     print('PAGE DATA ', page_data)
-    prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
-        str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
-    summary = conversation.predict(input=prompt)
 
-    # Send the email with the summary
-    sender = 'bobbynicholson78704@gmail.com'
-    recipient = data.get("email")
-    password = os.getenv("EMAIL_PASSWORD")
-    subject = "Summary of Frontend Events"
-    text = summary
-    msg = MIMEText(text)
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = recipient
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(sender, password)
-    server.sendmail(sender, recipient, msg.as_string())
-    server.quit()
     return jsonify({"success": True})
 
 
