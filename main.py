@@ -16,8 +16,7 @@ from helpers import (
     check_password,
     found_user,
     get_password,
-    email_already_registered,
-    allow_cors
+    email_already_registered
 )
 
 
@@ -41,13 +40,7 @@ except Exception:
 mongo = client.get_database('eventbot')
 
 ################ END MONGO SETUP #######################################
-approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 
-server_site = 'https://web-staging-staging.up.railway.app'
-
-approved_sites.append(server_site)
-
-print(approved_sites)
 
 ################ APP SETUP ###########################################
 
@@ -436,7 +429,7 @@ def summary():
                       for doc in mongo.db.client_sites.find()]
     server_site = 'https://web-staging-staging.up.railway.app'
     approved_sites.append(server_site)
-
+    print('APPROVED SITES ', approved_sites)
     origin = request.headers.get('Origin', '')
     if origin not in approved_sites:
         return make_response("Unauthorized", 401)
@@ -454,7 +447,7 @@ def summary():
     # add the events to the page data object
     for event in events:
         mongo.db.page_data.update_one(
-            {'_id': ObjectId(page_data.inserted_id)},
+            {'_id': ObjectId(page_data._id)},
             {'$push': {'events': event}}
         )
     print('PAGE DATA ', page_data)
