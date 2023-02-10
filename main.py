@@ -1,5 +1,6 @@
 # import smtplib
 # from email.mime.text import MIMEText
+from flask_cors import CORS, cross_origin
 from datetime import timedelta
 from bson import ObjectId
 from flask import Flask, Response, make_response, request, render_template, jsonify, redirect, url_for, session
@@ -16,7 +17,8 @@ from helpers import (
     check_password,
     found_user,
     get_password,
-    email_already_registered
+    email_already_registered,
+    allow_cors
 )
 
 
@@ -40,7 +42,13 @@ except Exception:
 mongo = client.get_database('eventbot')
 
 ################ END MONGO SETUP #######################################
+approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 
+server_site = 'https://web-staging-staging.up.railway.app'
+
+approved_sites.append(server_site)
+
+print(approved_sites)
 
 ################ APP SETUP ###########################################
 
@@ -51,6 +59,7 @@ app = Flask(__name__, template_folder='templates')
 # cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
 #             attach_to_all=False, automatic_options=False)
 
+cors = CORS(app)
 
 # def allow_cors(response):
 #     origin = request.headers.get('Origin', '')
@@ -68,8 +77,9 @@ app = Flask(__name__, template_folder='templates')
 
 app.config['SECRET_KEY'] = 'secret-key'
 csrf = CSRFProtect(app)
-
-
+# allow CORS
+cors = CORS(app, resources={r"/*": {"origins": "*"}},
+            attach_to_all=False, automatic_options=False)
 ################ END APP SETUP ###########################################
 
 
@@ -422,25 +432,22 @@ def generate_script(site_id):
 
 # request looks like this: REQUEST DATA  [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]
 # REWRITE TO CREATE A PageData Object
-@app.route("/summary", methods=["POST"])
-@csrf.exempt
+@ app.route("/summary", methods=["POST"])
+# @ cross_origin(origins=approved_sites)
+# exempt from csrf protection
+@ csrf.exempt
 def summary():
-    approved_sites = [doc['client_site']
-                      for doc in mongo.db.client_sites.find()]
-    server_site = 'https://web-staging-staging.up.railway.app'
-    approved_sites.append(server_site)
-    print('APPROVED SITES ', approved_sites)
-    origin = request.headers.get('Origin', '')
-    if origin not in approved_sites:
-        pring('UNAUTHORIZED ', origin)
-        return make_response("Unauthorized", 401)
-
     data = request.get_json()
+    print('REQUEST DATA ', data)
     events = data
-
+    # get the site id from the request header
+    print(request.headers)
+    print('EVENTS: ')
+    print(events)
     site_id = request.headers.get('Site-Id')
     client = request.headers.get('Client-Id')
 
+    # create a new page data object
     page_data = mongo.db.page_data.insert_one({
         'client_id': client,
         'site_id': site_id,
@@ -476,6 +483,7 @@ def summary():
 #     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
 #         str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
 #     summary = conversation.predict(input=prompt)
+
 #     # Send the email with the summary
 #     sender = 'bobbynicholson78704@gmail.com'
 #     recipient = data.get("email")
