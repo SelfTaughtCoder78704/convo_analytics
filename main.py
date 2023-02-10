@@ -432,6 +432,7 @@ def summary():
     print('APPROVED SITES ', approved_sites)
     origin = request.headers.get('Origin', '')
     if origin not in approved_sites:
+        pring('UNAUTHORIZED ', origin)
         return make_response("Unauthorized", 401)
 
     data = request.get_json()
@@ -447,7 +448,7 @@ def summary():
     # add the events to the page data object
     for event in events:
         mongo.db.page_data.update_one(
-            {'_id': ObjectId(page_data._id)},
+            {'_id': ObjectId(page_data.inserted_id)},
             {'$push': {'events': event}}
         )
     print('PAGE DATA ', page_data)
