@@ -1,6 +1,5 @@
 # import smtplib
 # from email.mime.text import MIMEText
-from flask_cors import CORS, cross_origin
 from datetime import timedelta
 from bson import ObjectId
 from flask import Flask, Response, make_response, request, render_template, jsonify, redirect, url_for, session
@@ -42,7 +41,13 @@ except Exception:
 mongo = client.get_database('eventbot')
 
 ################ END MONGO SETUP #######################################
+approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 
+server_site = 'https://web-staging-staging.up.railway.app'
+
+approved_sites.append(server_site)
+
+print(approved_sites)
 
 ################ APP SETUP ###########################################
 
@@ -53,7 +58,14 @@ app = Flask(__name__, template_folder='templates')
 # cors = CORS(app, resources={r"/*": {"origins": approved_sites}},
 #             attach_to_all=False, automatic_options=False)
 
-cors = CORS(app)
+
+# def allow_cors(response):
+#     origin = request.headers.get('Origin', '')
+#     if origin in approved_sites:
+#         response.headers['Access-Control-Allow-Origin'] = origin
+#     else:
+#         return make_response("Unauthorized", 401)
+#     return response
 
 
 # app.after_request(allow_cors)
@@ -63,9 +75,8 @@ cors = CORS(app)
 
 app.config['SECRET_KEY'] = 'secret-key'
 csrf = CSRFProtect(app)
-# allow CORS
-cors = CORS(app, resources={r"/*": {"origins": "*"}},
-            attach_to_all=False, automatic_options=False)
+
+
 ################ END APP SETUP ###########################################
 
 
@@ -439,10 +450,16 @@ def summary():
     page_data = mongo.db.page_data.insert_one({
         'client_id': client,
         'site_id': site_id,
-        'events': events
     })
+    # add the events to the page data object
+    for event in events:
+        mongo.db.page_data.update_one(
+            {'_id': ObjectId(page_data.inserted_id)},
+            {'$push': {'events': event}}
+        )
+    print('PAGE DATA ', page_data)
 
-    return jsonify({"success": True, "page_data": page_data})
+    return jsonify({"success": True})
 
 
 ################ END ROUTES SETUP ###########################################
