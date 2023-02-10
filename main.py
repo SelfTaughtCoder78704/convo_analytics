@@ -55,18 +55,6 @@ app = Flask(__name__, template_folder='templates')
 
 cors = CORS(app)
 
-def allow_cors(response):
-    approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
-    server_site = 'https://web-staging-staging.up.railway.app'
-    approved_sites.append(server_site)
-    print(approved_sites)
-    origin = request.headers.get('Origin', '')
-    if origin in approved_sites:
-        response.headers['Access-Control-Allow-Origin'] = origin
-    else:
-        return make_response("Unauthorized", 401)
-    return response
-
 
 # app.after_request(allow_cors)
 
@@ -430,36 +418,31 @@ def generate_script(site_id):
 
 # request looks like this: REQUEST DATA  [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]
 # REWRITE TO CREATE A PageData Object
-@ app.route("/summary", methods=["POST"])
-# @ cross_origin(origins=approved_sites)
-@ allow_cors
-# exempt from csrf protection
-@ csrf.exempt
+@app.route("/summary", methods=["POST"])
+@csrf.exempt
 def summary():
+    approved_sites = [doc['client_site']
+                      for doc in mongo.db.client_sites.find()]
+    server_site = 'https://web-staging-staging.up.railway.app'
+    approved_sites.append(server_site)
+
+    origin = request.headers.get('Origin', '')
+    if origin not in approved_sites:
+        return make_response("Unauthorized", 401)
+
     data = request.get_json()
-    print('REQUEST DATA ', data)
     events = data
-    # get the site id from the request header
-    print(request.headers)
-    print('EVENTS: ')
-    print(events)
+
     site_id = request.headers.get('Site-Id')
     client = request.headers.get('Client-Id')
 
-    # create a new page data object
     page_data = mongo.db.page_data.insert_one({
         'client_id': client,
         'site_id': site_id,
+        'events': events
     })
-    # add the events to the page data object
-    for event in events:
-        mongo.db.page_data.update_one(
-            {'_id': ObjectId(page_data.inserted_id)},
-            {'$push': {'events': event}}
-        )
-    print('PAGE DATA ', page_data)
 
-    return jsonify({"success": True})
+    return jsonify({"success": True, "page_data": page_data})
 
 
 ################ END ROUTES SETUP ###########################################
@@ -482,7 +465,6 @@ def summary():
 #     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
 #         str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
 #     summary = conversation.predict(input=prompt)
-
 #     # Send the email with the summary
 #     sender = 'bobbynicholson78704@gmail.com'
 #     recipient = data.get("email")
