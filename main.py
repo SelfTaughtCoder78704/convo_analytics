@@ -42,13 +42,7 @@ except Exception:
 mongo = client.get_database('eventbot')
 
 ################ END MONGO SETUP #######################################
-approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
 
-server_site = 'https://web-staging-staging.up.railway.app'
-
-approved_sites.append(server_site)
-
-print(approved_sites)
 
 ################ APP SETUP ###########################################
 
@@ -61,13 +55,17 @@ app = Flask(__name__, template_folder='templates')
 
 cors = CORS(app)
 
-# def allow_cors(response):
-#     origin = request.headers.get('Origin', '')
-#     if origin in approved_sites:
-#         response.headers['Access-Control-Allow-Origin'] = origin
-#     else:
-#         return make_response("Unauthorized", 401)
-#     return response
+def allow_cors(response):
+    approved_sites = [doc['client_site'] for doc in mongo.db.client_sites.find()]
+    server_site = 'https://web-staging-staging.up.railway.app'
+    approved_sites.append(server_site)
+    print(approved_sites)
+    origin = request.headers.get('Origin', '')
+    if origin in approved_sites:
+        response.headers['Access-Control-Allow-Origin'] = origin
+    else:
+        return make_response("Unauthorized", 401)
+    return response
 
 
 # app.after_request(allow_cors)
@@ -434,6 +432,7 @@ def generate_script(site_id):
 # REWRITE TO CREATE A PageData Object
 @ app.route("/summary", methods=["POST"])
 # @ cross_origin(origins=approved_sites)
+@ allow_cors
 # exempt from csrf protection
 @ csrf.exempt
 def summary():
