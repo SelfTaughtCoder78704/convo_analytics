@@ -1,11 +1,11 @@
-# import smtplib
-# from email.mime.text import MIMEText
+import smtplib
+from email.mime.text import MIMEText
 from flask_cors import CORS, cross_origin
 from datetime import timedelta
 from bson import ObjectId
 from flask import Flask, Response, make_response, request, render_template, jsonify, redirect, url_for, session
-# from langchain.chains.conversation.memory import ConversationBufferMemory
-# from langchain import OpenAI, ConversationChain
+from langchain.chains.conversation.memory import ConversationBufferMemory
+from langchain import OpenAI, ConversationChain
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired, Email
@@ -437,6 +437,15 @@ def generate_script(site_id):
 # exempt from csrf protection
 @ csrf.exempt
 def summary():
+    llm = OpenAI(temperature=0)
+    conversation = ConversationChain(
+        llm=llm,
+        verbose=True,
+        memory=ConversationBufferMemory()
+    )
+
+    first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
+    convo = conversation.predict(input=first_input)
     data = request.get_json()
     print('REQUEST DATA ', data)
     events = data
@@ -459,7 +468,25 @@ def summary():
             {'$push': {'events': event}}
         )
     print('PAGE DATA ', page_data)
+    prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
+        str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
+    summary = conversation.predict(input=prompt)
 
+    # Send the email with the summary
+    sender = 'bobbynicholson78704@gmail.com'
+    recipient = data.get("email")
+    password = os.getenv("EMAIL_PASSWORD")
+    subject = "Summary of Frontend Events"
+    text = summary
+    msg = MIMEText(text)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = recipient
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(sender, password)
+    server.sendmail(sender, recipient, msg.as_string())
+    server.quit()
     return jsonify({"success": True})
 
 
