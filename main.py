@@ -385,7 +385,8 @@ def generate_script(site_id):
                 'site_id': '{site_id}',
                 'client_id': '{my_client_site['user']}'
             }},
-            body: JSON.stringify(events)
+            body: JSON.stringify(events,
+            email: "bobbynicholson78704@gmail.com")
         }}).then(res => res.json())
         .then(data => console.log(data))
         .catch(err => console.log(err))
@@ -446,6 +447,7 @@ def summary():
 
     first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
     convo = conversation.predict(input=first_input)
+    print(convo)
     data = request.get_json()
     print('REQUEST DATA ', data)
     events = data
