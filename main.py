@@ -334,12 +334,12 @@ convo = conversation.predict(input=first_input)
 
 @app.route("/event_summary/<event_id>")
 def event_summary(event_id):
-    prompt_setup = ""
+    prompt_setup = "Please summarize the events that occurred in a conversational way. The events were: "
     event = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
     for event in event['events']:
         prompt_setup += "f " + "EVENT: " + \
             event['element'] + " " + event['event'] + \
-            " " + event['value'] + " "
+            " " + event['value'] + "be affirmative" " "
     # prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
     #     str(prompt_setup) +
     #     ". Return the elements, events, values and the conversation should be a summarized list"
