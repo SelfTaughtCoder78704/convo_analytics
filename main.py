@@ -338,7 +338,7 @@ def event_summary(event_id):
 
     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
         str(event['events']) + \
-        ". Be concise, giving the most important information and avoid redundancy. However, do return the elements and the conversation should be a summarized list"
+        ". Be concise, giving the most important information and avoid redundancy. However, do return the elements, events, and values -- and the conversation should be a summarized list"
     summary = conversation.predict(input=prompt)
 
     return jsonify({'summary': summary})
