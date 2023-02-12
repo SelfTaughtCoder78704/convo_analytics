@@ -337,7 +337,7 @@ def event_summary(event_id):
     prompt_setup = ""
     event = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
     for event in event['events']:
-        prompt_setup = "f " + "EVENT: " + \
+        prompt_setup += "f " + "EVENT: " + \
             event['element'] + " " + event['event'] + \
             " " + event['value'] + " "
     # prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
