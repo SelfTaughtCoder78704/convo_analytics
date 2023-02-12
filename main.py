@@ -4,8 +4,9 @@ from flask_cors import CORS, cross_origin
 
 from bson import ObjectId
 from flask import Flask, Response, request, render_template, jsonify, redirect, url_for, session
-# from langchain.chains.conversation.memory import ConversationBufferMemory
-# from langchain import OpenAI, ConversationChain
+from langchain import ConversationChain
+from langchain.llms import OpenAI
+from langchain.chains.conversation.memory import ConversationBufferMemory
 
 from forms import ClientSiteForm, AddElementForm, EditSiteForm
 from flask_wtf.csrf import CSRFProtect
@@ -320,6 +321,27 @@ def summary():
 
 # first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
 # convo = conversation.predict(input=first_input)
+
+
+@app.route("/event_summary/<event_id>")
+def event_summary(event_id):
+    event = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
+    llm = OpenAI(temperature=0)
+    conversation = ConversationChain(
+        llm=llm,
+        verbose=True,
+        memory=ConversationBufferMemory()
+    )
+
+    first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
+    convo = conversation.predict(input=first_input)
+
+    prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
+        str(event['events']) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
+    summary = conversation.predict(input=prompt)
+
+    return jsonify({'summary': summary})
+
 
 
 # @app.route("/summary", methods=["POST"])
