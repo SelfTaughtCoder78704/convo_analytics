@@ -337,11 +337,11 @@ def event_summary(event_id):
     convo = conversation.predict(input=first_input)
 
     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
-        str(event['events']) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
+        str(event['events']) + \
+        ". Be concise, giving the most important information and avoid redundancy."
     summary = conversation.predict(input=prompt)
 
     return jsonify({'summary': summary})
-
 
 
 # @app.route("/summary", methods=["POST"])
@@ -351,7 +351,6 @@ def event_summary(event_id):
 #     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
 #         str(events) + ". Match hovering and clicking events with the corresponding elements. Make the summary in list fashion."
 #     summary = conversation.predict(input=prompt)
-
 #     # Send the email with the summary
 #     sender = 'bobbynicholson78704@gmail.com'
 #     recipient = data.get("email")
