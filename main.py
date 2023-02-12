@@ -333,7 +333,7 @@ def event_summary(event_id):
         memory=ConversationBufferMemory()
     )
 
-    first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way. Specifically we will be using anchors, images, buttons, and forms."
+    first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way. Specifically we will be using anchors, images, buttons, and forms. These will be provided in a json format and you will analyze them and write a summary in clean list fashion."
     convo = conversation.predict(input=first_input)
 
     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
