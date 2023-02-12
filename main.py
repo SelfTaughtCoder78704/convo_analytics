@@ -321,20 +321,20 @@ def summary():
 
 # first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
 # convo = conversation.predict(input=first_input)
+llm = OpenAI(temperature=0)
+conversation = ConversationChain(
+    llm=llm,
+    verbose=True,
+    memory=ConversationBufferMemory()
+)
+
+first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way. Specifically we will be using anchors, images, buttons, and forms. These will be provided in a json format and you will analyze them and write a summary in clean list fashion."
+convo = conversation.predict(input=first_input)
 
 
 @app.route("/event_summary/<event_id>")
 def event_summary(event_id):
     event = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
-    llm = OpenAI(temperature=0)
-    conversation = ConversationChain(
-        llm=llm,
-        verbose=True,
-        memory=ConversationBufferMemory()
-    )
-
-    first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way. Specifically we will be using anchors, images, buttons, and forms. These will be provided in a json format and you will analyze them and write a summary in clean list fashion."
-    convo = conversation.predict(input=first_input)
 
     prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
         str(event['events']) + \
