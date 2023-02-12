@@ -1,23 +1,17 @@
 # import smtplib
 # from email.mime.text import MIMEText
 from flask_cors import CORS, cross_origin
-from datetime import timedelta
+
 from bson import ObjectId
-from flask import Flask, Response, make_response, request, render_template, jsonify, redirect, url_for, session
+from flask import Flask, Response, request, render_template, jsonify, redirect, url_for, session
 # from langchain.chains.conversation.memory import ConversationBufferMemory
 # from langchain import OpenAI, ConversationChain
 
-from forms import LoginForm, RegisterForm, ClientSiteForm, AddElementForm, EditSiteForm
+from forms import ClientSiteForm, AddElementForm, EditSiteForm
 from flask_wtf.csrf import CSRFProtect
 from routes import routes_bp
 from helpers import (
-    register_user,
-    hash_password,
-    check_password,
-    found_user,
-    get_password,
-    email_already_registered,
-    allow_cors
+    found_user
 )
 
 
@@ -86,94 +80,6 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}},
 app.register_blueprint(routes_bp)
 
 ################ ROUTES SETUP ###########################################
-
-
-# @ app.route("/")
-# def hello_world():
-#     return render_template('index.html')
-
-
-################ LOGIN/LOGOUT ROUTES AND FORM ###########################################
-
-
-# @app.route("/login", methods=["GET", "POST"])
-# def login():
-#     form = LoginForm()
-
-#     if form.validate_on_submit():
-#         user_email = form.email.data
-#         user_password = form.password.data
-
-#         if not found_user(mongo, user_email):
-#             return render_template('login.html', form=form, message='Email not registered')
-
-#         if not check_password(user_password, get_password(mongo, user_email)):
-#             return render_template('login.html', form=form, message='Incorrect password')
-
-#         session.permanent = True
-#         app.permanent_session_lifetime = timedelta(minutes=30)
-#         session['email'] = user_email
-
-#         return redirect(url_for('display_dashboard'))
-
-#     return render_template('login.html', form=form)
-
-
-# @app.route("/logout", methods=["GET"])
-# def logout():
-#     session.clear()
-#     return redirect(url_for("login"))
-
-################ END LOGIN/LOGOUT  ROUTES AND FORM ###########################################
-
-################ REGISTER ROUTES ###########################################
-
-
-# @app.route("/register", methods=["GET", "POST"])
-# def register():
-#     form = RegisterForm()
-
-#     if form.validate_on_submit():
-#         user_name = form.username.data
-#         user_email = form.email.data
-#         user_password = form.password.data
-
-#         if email_already_registered(mongo, user_email):
-#             return render_template('register.html', form=form, message='Email already registered')
-
-#         hashed_password = hash_password(user_password)
-#         register_user(mongo, user_name, user_email, hashed_password)
-#         return redirect(url_for('login'))
-
-#     return render_template('register.html', form=form)
-
-
-################ END REGISTER ROUTES ###########################################
-
-################ DASHBOARD ROUTE ###########################################
-
-
-# @app.route("/dashboard", methods=["GET", "POST"])
-# def display_dashboard():
-#     # Check if the user is logged in
-#     if not session.get("email"):
-#         return redirect(url_for("routes."))
-
-#     client_form = ClientSiteForm()
-#     if client_form.validate_on_submit():
-#         client_site = client_form.client_site.data
-#         user = found_user(mongo, session['email'])
-#         mongo.db.client_sites.insert_one(
-#             {'user': user['_id'], 'url': client_site})
-#         return redirect(url_for('display_dashboard'))
-
-#     email = session['email']
-#     my_user = found_user(mongo, session['email'])
-#     my_client_sites = mongo.db.client_sites.find({'user': my_user['_id']})
-#     return render_template('dashboard.html', email=email, user=my_user, form=client_form, sites=my_client_sites)
-
-
-################ END DASHBOARD ROUTE ###########################################
 
 ################ CLIENT ADDS SITE ROUTE ###############
 
