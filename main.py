@@ -6,11 +6,10 @@ from bson import ObjectId
 from flask import Flask, Response, make_response, request, render_template, jsonify, redirect, url_for, session
 # from langchain.chains.conversation.memory import ConversationBufferMemory
 # from langchain import OpenAI, ConversationChain
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField
-from wtforms.validators import DataRequired, Email
-from flask_wtf.csrf import CSRFProtect
 
+from forms import LoginForm, RegisterForm, ClientSiteForm, AddElementForm, EditSiteForm
+from flask_wtf.csrf import CSRFProtect
+from routes import routes_bp
 from helpers import (
     register_user,
     hash_password,
@@ -53,6 +52,7 @@ print(approved_sites)
 ################ APP SETUP ###########################################
 
 app = Flask(__name__, template_folder='templates')
+
 ################ CORS SETUP #################
 
 
@@ -76,179 +76,129 @@ cors = CORS(app)
 ################ END CORS SETUP #################
 
 app.config['SECRET_KEY'] = 'secret-key'
+app.config["MONGO"] = mongo
+
 csrf = CSRFProtect(app)
 # allow CORS
 cors = CORS(app, resources={r"/*": {"origins": "*"}},
             attach_to_all=False, automatic_options=False)
 ################ END APP SETUP ###########################################
-
+app.register_blueprint(routes_bp)
 
 ################ ROUTES SETUP ###########################################
 
 
-@ app.route("/")
-def hello_world():
-    return render_template('index.html')
+# @ app.route("/")
+# def hello_world():
+#     return render_template('index.html')
 
 
 ################ LOGIN/LOGOUT ROUTES AND FORM ###########################################
 
-# Define a form to handle the login information
+
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     form = LoginForm()
+
+#     if form.validate_on_submit():
+#         user_email = form.email.data
+#         user_password = form.password.data
+
+#         if not found_user(mongo, user_email):
+#             return render_template('login.html', form=form, message='Email not registered')
+
+#         if not check_password(user_password, get_password(mongo, user_email)):
+#             return render_template('login.html', form=form, message='Incorrect password')
+
+#         session.permanent = True
+#         app.permanent_session_lifetime = timedelta(minutes=30)
+#         session['email'] = user_email
+
+#         return redirect(url_for('display_dashboard'))
+
+#     return render_template('login.html', form=form)
 
 
-class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
-    csrfToken = StringField('csrfToken')
-
-
-@ app.route("/login_form", methods=["GET"])
-def display_login_form():
-    form = LoginForm()
-    return render_template("login.html", form=form)
-
-
-@ app.route("/login", methods=["GET", "POST"])
-def login():
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        user_email = form.email.data
-        user_password = form.password.data
-        if not found_user(mongo, user_email):
-            return redirect(url_for('display_register_form', message='Email not registered'))
-        if not email_already_registered(mongo, user_email):
-            return render_template('login.html', form=form, message='Email not registered')
-
-        if not check_password(user_password, get_password(mongo, user_email)):
-            return render_template('login.html', form=form, message='Incorrect password')
-
-        # Create a session for the user
-        session.permanent = True
-        app.permanent_session_lifetime = timedelta(minutes=30)
-        session['email'] = user_email
-
-        return redirect(url_for('display_dashboard'))
-
-    return render_template('login.html', form=form)
-
-
-@ app.route("/logout", methods=["GET"])
-def logout():
-    session.clear()
-    return redirect(url_for("display_login_form"))
+# @app.route("/logout", methods=["GET"])
+# def logout():
+#     session.clear()
+#     return redirect(url_for("login"))
 
 ################ END LOGIN/LOGOUT  ROUTES AND FORM ###########################################
 
 ################ REGISTER ROUTES ###########################################
 
-# Define a form to handle the registration information
 
+# @app.route("/register", methods=["GET", "POST"])
+# def register():
+#     form = RegisterForm()
 
-class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Register')
-    csrfToken = StringField('csrfToken')
+#     if form.validate_on_submit():
+#         user_name = form.username.data
+#         user_email = form.email.data
+#         user_password = form.password.data
 
+#         if email_already_registered(mongo, user_email):
+#             return render_template('register.html', form=form, message='Email already registered')
 
-@ app.route("/register_form", methods=["GET"])
-def display_register_form():
-    form = RegisterForm()
-    message = request.args.get('message') or ''
-    return render_template("register_form.html", message=message, form=form)
+#         hashed_password = hash_password(user_password)
+#         register_user(mongo, user_name, user_email, hashed_password)
+#         return redirect(url_for('login'))
 
-
-@ app.route("/register", methods=["POST"])
-def register():
-    # Get the user details from the request
-    # user_details = request.get_json()
-    # user_name = user_details.get('username')
-    # user_email = user_details.get('email')
-    # user_password = user_details.get('password')
-    # print(user_name, user_email, user_password)
-
-    # # Check if the email is already registered
-    # if email_already_registered(mongo, user_email):
-    #     return jsonify({'message': 'Email already registered'}), 400
-    # # Hash the password
-    # hashed_password = hash_password(user_password)
-    # # Register the user
-    # register_user(mongo, user_name, user_email, hashed_password)
-    # return render_template('register_form.html', message='User registered successfully')
-
-    form = RegisterForm()
-    if form.validate_on_submit():
-        user_name = form.username.data
-        user_email = form.email.data
-        user_password = form.password.data
-        if email_already_registered(mongo, user_email):
-            return render_template('register_form.html', form=form, message='Email already registered')
-        hashed_password = hash_password(user_password)
-        register_user(mongo, user_name, user_email, hashed_password)
-        return redirect(url_for('display_login_form'))
-    return render_template('register_form.html', form=form)
+#     return render_template('register.html', form=form)
 
 
 ################ END REGISTER ROUTES ###########################################
 
 ################ DASHBOARD ROUTE ###########################################
 
-# form for setting client site url
-class ClientSiteForm(FlaskForm):
-    client_site = StringField('Client Site', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-    csrfToken = StringField('csrfToken')
 
+# @app.route("/dashboard", methods=["GET", "POST"])
+# def display_dashboard():
+#     # Check if the user is logged in
+#     if not session.get("email"):
+#         return redirect(url_for("routes."))
 
-@ app.route("/dashboard", methods=["GET"])
-def display_dashboard():
-    # Check if the user is logged in
-    if not session.get("email"):
-        return redirect(url_for("display_login_form"))
+#     client_form = ClientSiteForm()
+#     if client_form.validate_on_submit():
+#         client_site = client_form.client_site.data
+#         user = found_user(mongo, session['email'])
+#         mongo.db.client_sites.insert_one(
+#             {'user': user['_id'], 'url': client_site})
+#         return redirect(url_for('display_dashboard'))
 
-    client_form = ClientSiteForm()
+#     email = session['email']
+#     my_user = found_user(mongo, session['email'])
+#     my_client_sites = mongo.db.client_sites.find({'user': my_user['_id']})
+#     return render_template('dashboard.html', email=email, user=my_user, form=client_form, sites=my_client_sites)
 
-    email = session['email']
-
-    my_user = found_user(mongo, session['email'])
-    my_client_sites = mongo.db.client_sites.find({'user': my_user['_id']})
-    return render_template('dashboard.html', email=email, user=my_user, form=client_form, sites=my_client_sites)
 
 ################ END DASHBOARD ROUTE ###########################################
 
 ################ CLIENT ADDS SITE ROUTE ###############
 
 
-@ app.route("/set_site", methods=['POST'])
+@app.route("/set_site", methods=['POST'])
 def set_site():
     client_form = ClientSiteForm()
+    if not session.get("email"):
+        return redirect(url_for("routes.login"))
+
     my_user = found_user(mongo, session['email'])
     user_sites = mongo.db.client_sites.find({'user': my_user['_id']})
+
     if client_form.validate_on_submit():
         client_site = client_form.client_site.data
 
-        # check if the user has reached their limit of 1 site on FREE account_type
         if len(my_user['client_sites']) >= 1 and my_user['account_type'] == 'FREE':
-            # redirect to dashboard with message
-
             return render_template('dashboard.html', form=client_form, sites=user_sites, message='You have reached your limit of 1 site on FREE plan', user=my_user)
 
-        # create a mew collection for the client_sites add the client site to the collection and link it to the user
         mongo.db.client_sites.insert_one(
-            {'client_site': client_site,
-                'user': my_user['_id'], 'elements': []}
-        )
+            {'client_site': client_site, 'user': my_user['_id'], 'elements': []})
+        mongo.db.users.update_one({'_id': my_user['_id']}, {
+                                  '$push': {'client_sites': client_site}})
+        return redirect(url_for('routes.display_dashboard'))
 
-        # add the client site to the user and increment the usage
-        mongo.db.users.update_one(
-            {'_id': my_user['_id']},
-            {'$push': {'client_sites': client_site}}
-        )
-
-        return redirect(url_for('display_dashboard'))
     return render_template('dashboard.html', form=client_form, sites=user_sites, user=my_user)
 
 
@@ -256,41 +206,31 @@ def set_site():
 
 ################ VIEW SINGLE SITE ROUTE ############
 
-# form for adding elements
-
-class AddElementForm(FlaskForm):
-    elements = SelectMultipleField('Elements', choices=[(
-        'button', 'Buttons'), ('a', 'Links'), ('img', 'Images'), ('form', 'Forms')])
-    submit = SubmitField('Submit')
-    csrfToken = StringField('csrfToken')
-
-# form for editing site name
-
-
-class EditSiteForm(FlaskForm):
-    client_site = StringField('Client Site', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-    csrfToken = StringField('csrfToken')
-
-
-@ app.route("/site/<site_id>", methods=['GET'])
+@app.route("/site/<site_id>", methods=['GET'])
 def view_site(site_id):
     element_form = AddElementForm()
     edit_site_form = EditSiteForm()
+
     # Check if the user is logged in
     if not session.get("email"):
-        return redirect(url_for("display_login_form"))
+        return redirect(url_for("routes.display_login_form"))
 
     my_user = found_user(mongo, session['email'])
     my_client_site = mongo.db.client_sites.find_one({'_id': ObjectId(site_id)})
-    my_page_data = list(mongo.db.page_data.find(
-        {'site_id': site_id}))
+    my_page_data = list(mongo.db.page_data.find({'site_id': site_id}))
+
+    # Set an empty list if no page data is found
     if not my_page_data:
         my_page_data = []
 
-    print(my_page_data)
-
-    return render_template('site.html', user=my_user, site=my_client_site, events=my_page_data, form=element_form, edit=edit_site_form)
+    return render_template(
+        'site.html',
+        user=my_user,
+        site=my_client_site,
+        events=my_page_data,
+        form=element_form,
+        edit=edit_site_form
+    )
 
 ################ END VIEW SINGLE SITE ROUTE ############
 
