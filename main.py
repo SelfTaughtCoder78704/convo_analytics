@@ -237,11 +237,13 @@ def generate_script(site_id):
         .then(data => console.log(data))
         .catch(err => console.log(err))
     }}
+    window.addEventListener('load', function() {{
+        timeLoaded = new Date()
+    }})
     const elements = {elements}
     elements.forEach(element => {{
         const elementList = document.querySelectorAll(element)
         elementList.forEach(element => {{
-
             element.addEventListener('click', (e) => {{
                 const event = {{
                     'element': e.target.nodeName,
