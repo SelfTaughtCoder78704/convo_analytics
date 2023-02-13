@@ -230,7 +230,8 @@ def generate_script(site_id):
             'event': 'unload',
             'time': timeLeft,
             'time_spent': timeSpent,
-            'client_site': '{my_client_site['client_site']}'
+            'client_site': '{my_client_site['client_site']}',
+            'value': 'Page left'
             }})
         fetch('https://web-staging-staging.up.railway.app/summary', {{
             method: 'POST',
@@ -250,7 +251,8 @@ def generate_script(site_id):
             'element': 'window',
             'event': 'load',
             'time': timeLoaded,
-            'client_site': '{my_client_site['client_site']}'
+            'client_site': '{my_client_site['client_site']}',
+            'value': 'Page loaded'
             }})
     }})
     const elements = {elements}
