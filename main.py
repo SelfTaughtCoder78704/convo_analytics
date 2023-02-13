@@ -356,12 +356,12 @@ def event_summary(event_id):
     for event in event['events']:
         prompt_setup += "f " + "EVENT: " + \
             event['element'] + " " + event['event'] + \
-            " " + event['value'] + \
-            " be affirmative and break it down in a list" " "
+            " " + event['value'] + " "
     # prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
     #     str(prompt_setup) +
     #     ". Return the elements, events, values and the conversation should be a summarized list"
-    summary = conversation.predict(input=prompt_setup)
+    summary = conversation.predict(
+        input=prompt_setup + " be affirmative and break it down in a list")
 
     return jsonify({'summary': summary})
 
