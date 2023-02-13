@@ -233,7 +233,7 @@
       <div class="eventList">
         {% for event in events %}
         <div class="event">
-          <p>{{event}}</p>
+          <a href="/site/event_summary/{{event._id}}">{{event._id}}</a>
         </div>
         {% endfor %}
       </div>
