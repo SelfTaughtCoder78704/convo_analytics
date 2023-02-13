@@ -351,13 +351,13 @@ conversation = ConversationChain(
     memory=ConversationBufferMemory()
 )
 
-first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
+first_input = "Hi there! You are an event bot that accepts events to summarize."
 convo = conversation.predict(input=first_input)
 
 
 @app.route("/event_summary/<event_id>")
 def event_summary(event_id):
-    prompt_setup = "Please summarize the events that occurred in a conversational way. The events were: "
+    prompt_setup = "The events that occurred were: "
     event_data = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
     for event in event_data['events']:
         element = event.get('element', 'N/A')
@@ -369,7 +369,7 @@ def event_summary(event_id):
         prompt_setup += f"EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. "
 
     prompt = prompt_setup + \
-        "Please return a summarized list of the elements, events, values, hrefs, srcs, and text content."
+        "please summarize so that I understand"
     summary = conversation.predict(input=prompt)
     return jsonify({'summary': summary})
 
