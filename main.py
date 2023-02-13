@@ -264,7 +264,6 @@ def generate_script(site_id):
                     const event = {{
                         'element': e.target.nodeName,
                         'event': e.type,
-                        'client_site': '{my_client_site['client_site']}',
                         'value': e.target.value || e.target.textContent.trim(),
                         'href': e.target.href || null,
                         'src': e.target.src || null,
@@ -277,7 +276,6 @@ def generate_script(site_id):
                     const event = {{
                         'element': e.target.nodeName,
                         'event': e.type,
-                        'client_site': '{my_client_site['client_site']}',
                         'value': e.target.value || e.target.textContent.trim(),
                         'href': e.target.href || null,
                         'src': e.target.src || null,
@@ -361,12 +359,13 @@ def event_summary(event_id):
     event_data = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
     for event in event_data['events']:
         element = event.get('element', 'N/A')
+        time = event.get('time', 'N/A')
         action = event.get('event', 'N/A')
         value = event.get('value', 'N/A')
         href = event.get('href', 'N/A')
         src = event.get('src', 'N/A')
         textContent = event.get('textContent', 'N/A')
-        prompt_setup += f"EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. "
+        prompt_setup += f"TIME: '{time} EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. "
 
     prompt = prompt_setup + \
         "please summarize so that I understand"
