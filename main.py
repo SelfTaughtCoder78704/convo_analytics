@@ -225,6 +225,13 @@ def generate_script(site_id):
     window.onbeforeunload = function() {{
         let timeLeft = new Date()
         let timeSpent = timeLeft - timeLoaded
+        events.push({{
+            'element': 'window',
+            'event': 'unload',
+            'time': timeLeft,
+            'time_spent': timeSpent,
+            'client_site': '{my_client_site['client_site']}'
+            }})
         fetch('https://web-staging-staging.up.railway.app/summary', {{
             method: 'POST',
             headers: {{
@@ -239,6 +246,12 @@ def generate_script(site_id):
     }}
     window.addEventListener('load', function() {{
         timeLoaded = new Date()
+        events.push({{
+            'element': 'window',
+            'event': 'load',
+            'time': timeLoaded,
+            'client_site': '{my_client_site['client_site']}'
+            }})
     }})
     const elements = {elements}
     elements.forEach(element => {{
