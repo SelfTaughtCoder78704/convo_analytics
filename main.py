@@ -365,7 +365,7 @@ def event_summary(event_id):
         href = event.get('href', 'N/A')
         src = event.get('src', 'N/A')
         textContent = event.get('textContent', 'N/A')
-        prompt_setup += f"TIME: '{time} EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. TIME LEFT: '{time}' "
+        prompt_setup += f"TIME: '{time} EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. TIME LEFT: '{time}' How Long: '{time}' "
 
     prompt = prompt_setup + \
         "please summarize so that I understand"
