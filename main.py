@@ -259,28 +259,34 @@ def generate_script(site_id):
     elements.forEach(element => {{
         const elementList = document.querySelectorAll(element)
         elementList.forEach(element => {{
-            element.addEventListener('click', (e) => {{
-                const event = {{
-                    'element': e.target.nodeName,
-                    'event': e.type,
-                    'client_site': '{my_client_site['client_site']}',
-                    'value': e.target.textContent.trim()
-                }}
-                console.log(event)
-                events.push(event)
-            }})
-        }})
-        elementList.forEach(element => {{
-            element.addEventListener('mouseover', (e) => {{
-                const event = {{
-                    'element': e.target.nodeName,
-                    'event': e.type,
-                    'client_site': '{my_client_site['client_site']}',
-                    'value': e.target.textContent.trim()
-                }}
-                console.log(event)
-                events.push(event)
-            }})
+            if (element.nodeName === 'A' || element.nodeName === 'BUTTON' || element.nodeName === 'INPUT') {{
+                element.addEventListener('click', (e) => {{
+                    const event = {{
+                        'element': e.target.nodeName,
+                        'event': e.type,
+                        'client_site': '{my_client_site['client_site']}',
+                        'value': e.target.value || e.target.textContent.trim(),
+                        'href': e.target.href || null,
+                        'src': e.target.src || null,
+                        'textContent': e.target.textContent || null
+                    }}
+                    console.log(event)
+                    events.push(event)
+                }})
+                element.addEventListener('mouseover', (e) => {{
+                    const event = {{
+                        'element': e.target.nodeName,
+                        'event': e.type,
+                        'client_site': '{my_client_site['client_site']}',
+                        'value': e.target.value || e.target.textContent.trim(),
+                        'href': e.target.href || null,
+                        'src': e.target.src || null,
+                        'textContent': e.target.textContent || null
+                    }}
+                    console.log(event)
+                    events.push(event)
+                }})
+            }}
         }})
     }})
     """
@@ -352,17 +358,19 @@ convo = conversation.predict(input=first_input)
 @app.route("/event_summary/<event_id>")
 def event_summary(event_id):
     prompt_setup = "Please summarize the events that occurred in a conversational way. The events were: "
-    event = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
-    for event in event['events']:
-        prompt_setup += "f " + "EVENT: " + \
-            event['element'] + " " + event['event'] + \
-            " " + event['value'] + " "
-    # prompt = "Please summarize the events that occurred in a conversational way. The events were: " + \
-    #     str(prompt_setup) +
-    #     ". Return the elements, events, values and the conversation should be a summarized list"
-    summary = conversation.predict(
-        input=prompt_setup + " be affirmative and break it down in a list")
+    event_data = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
+    for event in event_data['events']:
+        element = event.get('element', 'N/A')
+        action = event.get('event', 'N/A')
+        value = event.get('value', 'N/A')
+        href = event.get('href', 'N/A')
+        src = event.get('src', 'N/A')
+        textContent = event.get('textContent', 'N/A')
+        prompt_setup += f"EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. "
 
+    prompt = prompt_setup + \
+        "Please return a summarized list of the elements, events, values, hrefs, srcs, and text content."
+    summary = conversation.predict(input=prompt)
     return jsonify({'summary': summary})
 
 
