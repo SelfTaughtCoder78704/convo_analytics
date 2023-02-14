@@ -1,0 +1,58 @@
+
+{
+  "client_id": "63ded976133f1fab279370a7",
+  "site_id": "63e55a641f61550470fde88e",
+  "events": [
+    {
+      "element": "window",
+      "event": "load",
+      "time": "2023-02-13T19:28:20.103Z",
+      "client_site": " https://statuesque-dango-bb3731.netlify.app",
+      "value": "Page loaded"
+    },
+    {
+      "element": "A",
+      "event": "mouseover",
+      "client_site": " https://statuesque-dango-bb3731.netlify.app",
+      "value": "Instagram",
+      "href": "https://instagram.com/",
+      "src": null,
+      "textContent": "Instagram"
+    },
+    {
+      "element": "A",
+      "event": "mouseover",
+      "client_site": " https://statuesque-dango-bb3731.netlify.app",
+      "value": "Twitter",
+      "href": "https://twitter.com/",
+      "src": null,
+      "textContent": "Twitter"
+    },
+    {
+      "element": "A",
+      "event": "mouseover",
+      "client_site": " https://statuesque-dango-bb3731.netlify.app",
+      "value": "Facebook",
+      "href": "https://facebook.com/",
+      "src": null,
+      "textContent": "Facebook"
+    },
+    {
+      "element": "A",
+      "event": "click",
+      "client_site": " https://statuesque-dango-bb3731.netlify.app",
+      "value": "Facebook",
+      "href": "https://facebook.com/",
+      "src": null,
+      "textContent": "Facebook"
+    },
+    {
+      "element": "window",
+      "event": "unload",
+      "time": "2023-02-13T19:28:25.728Z",
+      "time_spent": 5625,
+      "client_site": " https://statuesque-dango-bb3731.netlify.app",
+      "value": "Page left"
+    }
+  ]
+}

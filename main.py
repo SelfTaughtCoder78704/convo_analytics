@@ -5,9 +5,14 @@ from flask_cors import CORS, cross_origin
 from bson import ObjectId
 from flask import Flask, Response, request, render_template, jsonify, redirect, url_for, session
 from langchain import ConversationChain
-from langchain.llms import OpenAI
+# from langchain.llms import OpenAI
 from langchain.chains.conversation.memory import ConversationBufferMemory
-
+from langchain.chains.summarize import load_summarize_chain
+from langchain.docstore.document import Document
+from langchain import OpenAI, PromptTemplate, LLMChain
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.chains.mapreduce import MapReduceChain
+from langchain.prompts import PromptTemplate
 from forms import ClientSiteForm, AddElementForm, EditSiteForm
 from flask_wtf.csrf import CSRFProtect
 from routes import routes_bp
@@ -158,17 +163,6 @@ def edit_site(site_id):
             {'_id': ObjectId(site_id)},
             {'$set': {'client_site': client_site}}
         )
-
-        # update the client site name in the user
-        # the user looks like this: {
-        #   "name": "user_one",
-        #   "email": "user@here.com",
-        #   "password": "$2b$12$PTNkAR8GPZA/1aSorZXNge/YOg2T./U.OwXMGnO5OeTF9s96fbcue",
-        #   "account_type": "FREE",
-        #   "client_sites": [
-        #       "client_site_one",
-        #   ]
-        # }
         mongo.db.users.update_one(
             {'_id': my_user['_id']},
             {'$set': {'client_sites.$[elem]': client_site}},
@@ -298,8 +292,6 @@ def generate_script(site_id):
 
 ################ END GENERATE SCRIPT ROUTE ############
 
-# request looks like this: REQUEST DATA  [{'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Instagram'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Twitter'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Google'}, {'element': 'A', 'event': 'mouseover', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'element': 'A', 'event': 'click', 'client_site': 'https://statuesque-dango-bb3731.netlify.app/';, 'value': 'Facebook'}, {'isTrusted': True}]
-# REWRITE TO CREATE A PageData Object
 @ app.route("/summary", methods=["POST"])
 # @ cross_origin(origins=approved_sites)
 # exempt from csrf protection
@@ -333,15 +325,7 @@ def summary():
 
 ################ END ROUTES SETUP ###########################################
 
-# llm = OpenAI(temperature=0)
-# conversation = ConversationChain(
-#     llm=llm,
-#     verbose=True,
-#     memory=ConversationBufferMemory()
-# )
-
-# first_input = "Hi there! You are EventBot. Frontend events are sent to you and you will document them in a friendly human readable way."
-# convo = conversation.predict(input=first_input)
+################ START CHATBOT ###############################################
 llm = OpenAI(temperature=0)
 conversation = ConversationChain(
     llm=llm,
@@ -352,25 +336,60 @@ conversation = ConversationChain(
 first_input = "Hi there! You are an event bot that accepts events to summarize."
 convo = conversation.predict(input=first_input)
 
+################ END CHATBOT ###############################################
+
+################ START CHATBOT ROUTE ###############################################
+
 
 @app.route("/event_summary/<event_id>")
 def event_summary(event_id):
-    prompt_setup = "The events that occurred were: "
-    event_data = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
-    for event in event_data['events']:
-        element = event.get('element', 'N/A')
-        time = event.get('time', 'N/A')
-        action = event.get('event', 'N/A')
-        value = event.get('value', 'N/A')
-        href = event.get('href', 'N/A')
-        src = event.get('src', 'N/A')
-        textContent = event.get('textContent', 'N/A')
-        prompt_setup += f"TIME: '{time} EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. TIME LEFT: '{time}' How Long: '{time}' "
+    # prompt_setup = "The events that occurred were: "
+    # event_data = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
+    # for event in event_data['events']:
+    #     element = event.get('element', 'N/A')
+    #     time = event.get('time', 'N/A')
+    #     action = event.get('event', 'N/A')
+    #     value = event.get('value', 'N/A')
+    #     href = event.get('href', 'N/A')
+    #     src = event.get('src', 'N/A')
+    #     textContent = event.get('textContent', 'N/A')
+    #     prompt_setup += f"TIME: '{time} EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. TIME LEFT: '{time}' How Long: '{time}' "
 
-    prompt = prompt_setup + \
-        "please summarize so that I understand"
-    summary = conversation.predict(input=prompt)
-    return jsonify({'summary': summary})
+    # prompt = prompt_setup + \
+    #     "please summarize so that I understand"
+    # summary = conversation.predict(input=prompt)
+    # return jsonify({'summary': summary})
+    text_splitter = CharacterTextSplitter()
+
+# with open('state_of_the_union.txt') as f:
+#     state_of_the_union = f.read()
+# texts = text_splitter.split_text(state_of_the_union)
+
+    page_data = mongo.db.page_data.find_one(
+        {"_id": ObjectId(event_id)})
+    # convert to txt format
+
+    text_page = str(page_data['events'])
+
+    split_data = text_splitter.split_text(text_page)
+    docs = [Document(page_content=t) for t in split_data[:3]]
+    prompt_template = """Write a concise summary of these events that happened on a web page. They are in chronological order.:
+
+
+    {text}
+
+
+    CONCISE SUMMARY FON NON-TECHINCAL USER:"""
+    PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
+    chain = load_summarize_chain(OpenAI(temperature=0), chain_type="map_reduce",
+                                 return_intermediate_steps=True, map_prompt=PROMPT, combine_prompt=PROMPT)
+
+    summed = chain({"input_documents": docs}, return_only_outputs=True)
+
+    return jsonify({'summary': summed})
+
+
+################ END CHATBOT ROUTE ###############################################
 
 
 # @app.route("/summary", methods=["POST"])
