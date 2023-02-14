@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ConvoAnalytics | Dashboard</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
       .btnGroup {
         display: flex;
         flex-direction: column;
@@ -66,9 +73,20 @@
 
       .welcome {
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row;
+        width: 100%;
+        align-items: flex-start;
         justify-content: center;
+        background-color: rgb(44, 87, 204);
+        color: white;
+        padding: 20px;
+        font-family: sans-serif;
+      }
+
+      .welcome div {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
       }
 
       .welcome p {
@@ -92,9 +110,11 @@
   </head>
   <body>
     <div class="welcome">
-      <h1>Welcome to the ConvoAnalytics Dashboard</h1>
-      <p>Hello, {{user.name}}!</p>
-      <p>Client ID: {{user._id}}</p>
+      <div>
+        <h1>Welcome to the ConvoAnalytics Dashboard</h1>
+        <p>Hello, {{user.name}}!</p>
+        <p>Client ID: {{user._id}}</p>
+      </div>
       <a href="/logout" class="btn">Logout</a>
     </div>
     <div class="dash">

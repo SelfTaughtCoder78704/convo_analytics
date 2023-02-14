@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired, Email
 
+
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -16,10 +17,12 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Register')
     csrfToken = StringField('csrfToken')
 
+
 class ClientSiteForm(FlaskForm):
-    client_site = StringField('Client Site', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    client_site = StringField('Add A Site', validators=[DataRequired()])
+    submit = SubmitField('Add Site')
     csrfToken = StringField('csrfToken')
+
 
 class AddElementForm(FlaskForm):
     elements = SelectMultipleField(
@@ -33,6 +36,7 @@ class AddElementForm(FlaskForm):
     )
     submit = SubmitField('Submit')
     csrfToken = StringField('csrfToken')
+
 
 class EditSiteForm(FlaskForm):
     client_site = StringField('Client Site', validators=[DataRequired()])
