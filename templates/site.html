@@ -233,7 +233,13 @@
       <div class="eventList">
         {% for event in events %}
         <div class="event">
-          <a href="/event_summary/{{event._id}}">{{event._id}}</a>
+          <p>
+            <!-- Summarize: <a href="/event_summary/{{event._id}}">{{event._id}}</a> -->
+          </p>
+          <button id="{{event._id}}" class="btn">
+            Summarize: {{event._id}}
+          </button>
+          <div class="summary"></div>
         </div>
         {% endfor %}
       </div>
@@ -250,6 +256,28 @@
 
         navigator.clipboard.writeText(genScript);
       }
+
+      let eventButtons = document.querySelectorAll(".event button");
+      let summaries = document.querySelectorAll(".summary");
+
+      eventButtons.forEach((button, index) => {
+        button.addEventListener("click", () => {
+          let eventId = button.getAttribute("id");
+          let summary = summaries[index];
+          let url = "/event_summary/" + eventId;
+          fetch(url, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log(data);
+              summary.innerHTML = data.summary.output_text;
+            });
+        });
+      });
     </script>
   </body>
 </html>

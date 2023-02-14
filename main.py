@@ -326,15 +326,15 @@ def summary():
 ################ END ROUTES SETUP ###########################################
 
 ################ START CHATBOT ###############################################
-llm = OpenAI(temperature=0)
-conversation = ConversationChain(
-    llm=llm,
-    verbose=True,
-    memory=ConversationBufferMemory()
-)
+# llm = OpenAI(temperature=0)
+# conversation = ConversationChain(
+#     llm=llm,
+#     verbose=True,
+#     memory=ConversationBufferMemory()
+# )
 
-first_input = "Hi there! You are an event bot that accepts events to summarize."
-convo = conversation.predict(input=first_input)
+# first_input = "Hi there! You are an event bot that accepts events to summarize."
+# convo = conversation.predict(input=first_input)
 
 ################ END CHATBOT ###############################################
 
@@ -343,6 +343,8 @@ convo = conversation.predict(input=first_input)
 
 @app.route("/event_summary/<event_id>")
 def event_summary(event_id):
+
+    print('EVENT ID ', event_id)
     # prompt_setup = "The events that occurred were: "
     # event_data = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
     # for event in event_data['events']:
@@ -367,8 +369,11 @@ def event_summary(event_id):
 
     page_data = mongo.db.page_data.find_one(
         {"_id": ObjectId(event_id)})
-    # convert to txt format
 
+    if not page_data:
+        return jsonify({'summary': 'No events found'})
+    # convert to txt format
+    llm = OpenAI(temperature=0)
     text_page = str(page_data['events'])
 
     split_data = text_splitter.split_text(text_page)
