@@ -345,27 +345,7 @@ def summary():
 def event_summary(event_id):
 
     print('EVENT ID ', event_id)
-    # prompt_setup = "The events that occurred were: "
-    # event_data = mongo.db.page_data.find_one({'_id': ObjectId(event_id)})
-    # for event in event_data['events']:
-    #     element = event.get('element', 'N/A')
-    #     time = event.get('time', 'N/A')
-    #     action = event.get('event', 'N/A')
-    #     value = event.get('value', 'N/A')
-    #     href = event.get('href', 'N/A')
-    #     src = event.get('src', 'N/A')
-    #     textContent = event.get('textContent', 'N/A')
-    #     prompt_setup += f"TIME: '{time} EVENT: Element '{element}' was {action}ed, with value '{value}', href '{href}', src '{src}', and text content '{textContent}'. TIME LEFT: '{time}' How Long: '{time}' "
-
-    # prompt = prompt_setup + \
-    #     "please summarize so that I understand"
-    # summary = conversation.predict(input=prompt)
-    # return jsonify({'summary': summary})
     text_splitter = CharacterTextSplitter()
-
-# with open('state_of_the_union.txt') as f:
-#     state_of_the_union = f.read()
-# texts = text_splitter.split_text(state_of_the_union)
 
     page_data = mongo.db.page_data.find_one(
         {"_id": ObjectId(event_id)})
