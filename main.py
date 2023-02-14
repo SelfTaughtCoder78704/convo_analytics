@@ -384,7 +384,7 @@ def event_summary(event_id):
     {text}
 
 
-    CONCISE SUMMARY FON NON-TECHINCAL USER:"""
+    CONCISE SUMMARY FON SITE OWNER:"""
     PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
     chain = load_summarize_chain(OpenAI(temperature=0), chain_type="map_reduce",
                                  return_intermediate_steps=True, map_prompt=PROMPT, combine_prompt=PROMPT)
