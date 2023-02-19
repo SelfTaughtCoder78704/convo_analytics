@@ -374,12 +374,14 @@ def event_summary(event_id):
 
     summed = chain({"input_documents": docs}, return_only_outputs=True)
 
-    save = mongo.db.page_data.update_one(
-        {'_id': ObjectId(event_id)},
-        {'$set': {'summary': summed}}
-    )
-
-    print('after save ', save)
+    try:
+        save = mongo.db.page_data.update_one(
+            {'_id': ObjectId(event_id)},
+            {'$set': {'summary': summed}}
+        )
+    except Exception as e:
+        print('Error saving summary to database: ', e)
+        print('after save ', save)
 
     return jsonify({'summary': summed})
 
