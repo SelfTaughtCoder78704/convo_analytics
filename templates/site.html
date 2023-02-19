@@ -329,10 +329,10 @@
             .then((data) => {
               console.log(data);
               summary.innerHTML = `<p>${data.summary.output_text}</p>
-              <form method="POST" action="/save_summary/${eventId}"> 
-              <input type="hidden" name="summary" value="${data.summary.output_text}">
-              <button type="submit" class="btn">Save Summary</button>  
-              </form>`;
+              <button class="btn" onclick=${saveIt(
+                eventId,
+                data.summary.output_text
+              )}>Save</button>`;
               summary.classList.add("done");
               // Hide the spinner when data is received
               spinner.style.display = "none";
@@ -345,6 +345,28 @@
             });
         });
       });
+
+      function saveIt(id, summary) {
+        let url = "/save_summary/" + id;
+        let data = {
+          summary: summary,
+        };
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
     </script>
   </body>
 </html>
