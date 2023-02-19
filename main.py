@@ -376,6 +376,7 @@ def event_summary(event_id):
 
 # save summary route
 @app.route("/save_summary/<event_id>", methods=["POST"])
+@csrf.exempt
 def save_summary(event_id):
     data = request.get_json()
     summary = data.get('summary')

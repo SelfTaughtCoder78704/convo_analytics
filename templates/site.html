@@ -329,7 +329,10 @@
             .then((data) => {
               console.log(data);
               summary.innerHTML = `<p>${data.summary.output_text}</p>
-              <a href="/save_summary/${eventId}"> Save? </a>`;
+              <form method="POST" action="/save_summary/${eventId}"> 
+              <input type="hidden" name="summary" value="${data.summary.output_text}">
+              <button type="submit" class="btn">Save Summary</button>  
+              </form>`;
               summary.classList.add("done");
               // Hide the spinner when data is received
               spinner.style.display = "none";
