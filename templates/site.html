@@ -329,7 +329,7 @@
             .then((data) => {
               console.log(data);
               summary.innerHTML = `<p>${data.summary.output_text}</p>
-              <a href="/event_save/${eventId}"> Save? </a>`;
+              <a href="/save_summary/${eventId}"> Save? </a>`;
               summary.classList.add("done");
               // Hide the spinner when data is received
               spinner.style.display = "none";
