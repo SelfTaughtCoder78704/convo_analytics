@@ -378,7 +378,8 @@ def event_summary(event_id):
         {'_id': ObjectId(event_id)},
         {'$set': {'summary': summed}}
     )
-    
+
+    print('after save ', save)
 
     return jsonify({'summary': summed})
 
