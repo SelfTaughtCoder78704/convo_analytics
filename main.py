@@ -374,6 +374,25 @@ def event_summary(event_id):
     return jsonify({'summary': summed})
 
 
+# save summary route
+@app.route("/save_summary/<event_id>", methods=["POST"])
+def save_summary(event_id):
+    data = request.get_json()
+    summary = data.get('summary')
+    page_data = mongo.db.page_data.find_one(
+        {"_id": ObjectId(event_id)})
+    if not page_data:
+        return jsonify({'success': False})
+    mongo.db.page_data.update_one(
+        {'_id': ObjectId(event_id)},
+        {'$set': {'summary': summary}}
+    )
+
+    # redirect to site id page
+    redirect_url = f'/site/{page_data["site_id"]}'
+    return jsonify({'success': True, 'redirect_url': redirect_url})
+
+
 ################ END CHATBOT ROUTE ###############################################
 
 
