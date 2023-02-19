@@ -320,7 +320,10 @@ def summary():
         )
     print('PAGE DATA ', page_data)
 
-    return jsonify({"success": True})
+    # redirect to the event summary page and pass the page data id
+    return redirect(url_for('event_summary', event_id=page_data.inserted_id))
+
+    # return jsonify({"success": True})
 
 
 ################ END ROUTES SETUP ###########################################
