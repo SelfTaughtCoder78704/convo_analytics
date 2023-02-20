@@ -39,6 +39,6 @@ class AddElementForm(FlaskForm):
 
 
 class EditSiteForm(FlaskForm):
-    client_site = StringField('Client Site', validators=[DataRequired()])
+    client_site = StringField('Edit Client Site URL', validators=[DataRequired()])
     submit = SubmitField('Submit')
     csrfToken = StringField('csrfToken')

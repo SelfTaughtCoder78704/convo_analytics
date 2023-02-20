@@ -46,24 +46,63 @@
       }
 
       .top {
-        background: rgb(44, 87, 204);
+        background: #2a3276;
+        color: white;
+        padding: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row;
+        font-family: sans-serif;
+        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.19);
+        filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.25));
+      }
+
+      .top > div {
+        width: 100%;
+      }
+
+      .right {
+        text-align: right;
+      }
+
+      .editForm {
+        background: #212656;
         color: white;
         padding: 20px;
         width: 100%;
         font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
-      .editForm {
-        background: rgb(28, 28, 28);
-        color: white;
-        padding: 20px;
+
+      .editForm .grouped {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
         width: fit-content;
-        font-family: sans-serif;
-        float: right;
+        margin: 0 auto;
+      }
+
+      .editForm svg {
+        cursor: pointer;
+      }
+
+      .editForm form {
+        display: none;
+        margin-top: 20px;
+      }
+
+      .center {
+        text-align: center;
+        cursor: pointer;
       }
 
       form input[type="submit"] {
-        background-color: #4caf50;
+        background-color: #80cc20;
         border: none;
+        border-radius: 50px;
         color: white;
         padding: 15px 32px;
         text-align: center;
@@ -80,12 +119,13 @@
         margin: 8px 0;
         box-sizing: border-box;
         border: 2px solid #ccc;
-        border-radius: 4px;
+        border-radius: 50px;
         outline: none;
       }
 
       .btn {
-        background-color: #4caf50;
+        background: #cc2020;
+        border-radius: 50px;
         border: none;
         color: white;
         padding: 15px 32px;
@@ -95,6 +135,12 @@
         font-size: 16px;
         margin: 4px 2px;
         cursor: pointer;
+        filter: drop-shadow(0px 10px 10px rgba(0, 0, 0, 0.25));
+      }
+
+      .eventList .btn {
+        background: #80cc20;
+        border-radius: 50px;
       }
 
       form label {
@@ -107,7 +153,7 @@
       }
 
       .configureScript {
-        background: rgb(28, 28, 28);
+        background: #2a3276;
         color: white;
         padding: 20px;
         width: 100%;
@@ -122,7 +168,7 @@
         border: 1px solid gray;
       }
       .configOptions {
-        background: rgb(28, 28, 28);
+        background: #2a3276;
         color: white;
         padding: 20px;
         width: fit-content;
@@ -130,7 +176,7 @@
       }
 
       .thingYouAreTargeting {
-        background: rgb(28, 28, 28);
+        background-color: #2a3276;
         color: white;
         padding: 20px;
         width: 100%;
@@ -149,7 +195,7 @@
       }
 
       .script {
-        background: rgb(28, 28, 28);
+        background-color: #2a3276;
         color: white;
         padding: 20px;
         width: 100%;
@@ -157,7 +203,7 @@
       }
 
       .generateScript {
-        background: rgb(28, 28, 28);
+        background-color: #2a3276;
         color: white;
         padding: 20px;
         width: fit-content;
@@ -186,7 +232,7 @@
       }
 
       .events {
-        background: rgb(28, 28, 28);
+        background: #2a3276;
         color: white;
         padding: 20px;
         width: 100%;
@@ -210,63 +256,137 @@
         border-radius: 5px;
         width: 100%;
       }
+
+      .badge {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .bottom {
+        display: flex;
+        background-color: #2a3276;
+        color: white;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .badge span {
+        background: #80cc20;
+        color: white;
+        padding: 10px;
+        border-radius: 100%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .red span {
+        background: #cc2020;
+      }
+
+      .left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .left svg {
+        cursor: pointer;
+      }
+
+      #closeEditForm {
+        cursor: pointer;
+        float: right;
+        display: block;
+      }
     </style>
   </head>
   <body>
     <div class="top">
-      <h2>USER: {{user.name}}</h2>
-      <h3>SITE: {{site.client_site}}</h3>
+      <div class="left">
+        <a href="/dashboard">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21.75 38.6L8.54997 25.4C8.34997 25.2 8.20797 24.9833 8.12397 24.75C8.03997 24.5167 7.99864 24.2667 7.99997 24C7.99997 23.7333 8.04197 23.4833 8.12597 23.25C8.20997 23.0167 8.3513 22.8 8.54997 22.6L21.75 9.4C22.1166 9.03333 22.5753 8.842 23.126 8.826C23.6766 8.81 24.1513 9.00133 24.55 9.4C24.95 9.76667 25.1586 10.2253 25.176 10.776C25.1933 11.3267 25.0013 11.8013 24.6 12.2L14.8 22H37.15C37.7166 22 38.192 22.192 38.576 22.576C38.96 22.96 39.1513 23.4347 39.15 24C39.15 24.5667 38.9586 25.042 38.576 25.426C38.1933 25.81 37.718 26.0013 37.15 26H14.8L24.6 35.8C24.9666 36.1667 25.1586 36.6333 25.176 37.2C25.1933 37.7667 25.0013 38.2333 24.6 38.6C24.2333 39 23.7666 39.2 23.2 39.2C22.6333 39.2 22.15 39 21.75 38.6Z"
+              fill="white"
+            />
+          </svg>
+        </a>
+
+        <div class="grouped">
+          <h1>ConvoAnalytics</h1>
+          <p>Dashboard</p>
+        </div>
+      </div>
+      <div class="center">
+        <p>Copy Your Script</p>
+        <svg
+          onclick="makeScript()"
+          width="75"
+          height="75"
+          viewBox="0 0 75 75"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M9.375 46.875V51.5625H20.1234L4.6875 66.9984L8.00156 70.3125L23.4375 54.8766V65.625H28.125V46.875H9.375ZM63.6797 60.9375L57.6328 66.9844L60.9375 70.3125L70.3125 60.9375L60.9375 51.5625L57.6094 54.8672L63.6797 60.9375ZM44.1328 60.9375L50.1797 54.8906L46.875 51.5625L37.5 60.9375L46.875 70.3125L50.2031 67.0078L44.1328 60.9375ZM60.2344 21.7969L43.8281 5.39063C43.6218 5.16175 43.3682 4.98036 43.085 4.85897C42.8018 4.73757 42.4955 4.67908 42.1875 4.6875H18.75C17.5079 4.69121 16.3178 5.18626 15.4395 6.06454C14.5613 6.94281 14.0662 8.13294 14.0625 9.375V37.5H18.75V9.375H37.5V23.4375C37.5037 24.6796 37.9988 25.8697 38.877 26.748C39.7553 27.6262 40.9454 28.1213 42.1875 28.125H56.25V42.1875H60.9375V23.4375C60.9458 23.1295 60.8872 22.8233 60.7658 22.5401C60.6444 22.2569 60.4631 22.0033 60.2344 21.7969ZM42.1875 23.4375V10.3125L55.3125 23.4375H42.1875Z"
+            fill="white"
+          />
+        </svg>
+      </div>
+      <div class="right">
+        <h2>USER: {{user.name}}</h2>
+
+        <a class="btn" href="/logout">Logout</a>
+      </div>
     </div>
 
     <div class="editForm">
-      <h4>Edit Site Address?</h4>
+      <div class="grouped">
+        <h3>SITE: {{site.client_site}}</h3>
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 48 48"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M38.6 17.85L30.1 9.45L32.9 6.65C33.6667 5.88333 34.6087 5.5 35.726 5.5C36.8433 5.5 37.7847 5.88333 38.55 6.65L41.35 9.45C42.1167 10.2167 42.5167 11.142 42.55 12.226C42.5833 13.31 42.2167 14.2347 41.45 15L38.6 17.85ZM35.7 20.8L14.5 42H6V33.5L27.2 12.3L35.7 20.8Z"
+            fill="#80CC20"
+          />
+        </svg>
+      </div>
+
       <form action="/site/edit_site/{{site._id}}" method="POST">
+        <span id="closeEditForm">X</span>
         {{ edit.hidden_tag() }} {{ edit.client_site.label }} {{
         edit.client_site() }} {{ edit.submit }}
       </form>
-    </div>
 
-    <div class="configureScript">
-      <h3>What would you like to target?</h3>
-      <div class="configOptions">
-        <form action="/site/set_elements/{{site._id}}" method="POST">
-          <div>
-            {{ form.hidden_tag() }} {{ form.elements.label }} {{
-            form.elements(rows=3, multiple=True) }}
-          </div>
-          <button type="submit" class="btn">Submit</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- if site.elements length > 0: -->
-    {% if site.elements|length > 0 %}
-    <div class="thingYouAreTargeting">
-      <h3>Your Targeted Elements:</h3>
-      <div class="targetedElements">
-        {% for element in site.elements %}
-        <div class="targetedElement">
-          <p>{{element}}</p>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-    {% endif %}
-
-    <div class="script">
-      <h3>Script:</h3>
-      <div class="scriptCode">
-        <div class="clickToCopy">
-          <button class="btn" onclick="makeScript()">Copy to Clipboard</button>
-        </div>
-        <div class="generateScript">
-          <a id="siteId" class="btn" href="/site/generate_script/{{site._id}}"
-            >Go To Script</a
-          >
-        </div>
+      <div class="count">
+        {% if events %}
+        <!-- get the length of events -->
+        {% set event_count = events|length %}
+        <p class="badge red">Event Count: <span>{{event_count}}</span></p>
+        {% endif %}
       </div>
     </div>
     {% if events %}
+
     <div class="events">
       <h3>Events:</h3>
       <div class="eventList">
@@ -275,10 +395,11 @@
           {% if event.summary %}
           <p>
             <!-- Summarize: <a href="/event_summary/{{event._id}}">{{event._id}}</a> -->
-            Summarized: <br />
+            <b>Summarized:</b> <br />
             {{event.summary }}
           </p>
           {% else %}
+          <p><b>02/20/2023</b></p>
           <button id="{{event._id}}" class="btn">
             Summarize: {{event._id}}
           </button>
@@ -292,7 +413,58 @@
       <div class="spinner"></div>
     </div>
     {% endif %}
+    <div class="bottom">
+      <div class="configureScript">
+        <h3>What would you like to target?</h3>
+        <div class="configOptions">
+          <form action="/site/set_elements/{{site._id}}" method="POST">
+            <div>
+              {{ form.hidden_tag() }} {{ form.elements.label }} {{
+              form.elements(rows=3, multiple=True) }}
+            </div>
+            <button type="submit" class="btn">Submit</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- if site.elements length > 0: -->
+      {% if site.elements|length > 0 %}
+      <div class="thingYouAreTargeting">
+        <h3>Your Targeted Elements:</h3>
+        <div class="targetedElements">
+          {% for element in site.elements %}
+          <div class="targetedElement">
+            <p>{{element}}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="script">
+        <h3>Script:</h3>
+        <div class="scriptCode">
+          <div class="generateScript">
+            <a id="siteId" class="btn" href="/site/generate_script/{{site._id}}"
+              >Go To Script</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="text/javascript">
+      let pencil = document.querySelector(".editForm svg");
+      let editForm = document.querySelector(".editForm form");
+
+      let closeEditForm = document.querySelector("#closeEditForm");
+      closeEditForm.addEventListener("click", () => {
+        editForm.style.display = "none";
+      });
+
+      pencil.addEventListener("click", () => {
+        editForm.style.display = "block";
+      });
       function makeScript() {
         let baseUrl = window.location.origin;
         let siteId = document.querySelector("#siteId");
@@ -302,6 +474,7 @@
         console.log(genScript);
 
         navigator.clipboard.writeText(genScript);
+        alert("Copied to clipboard!");
       }
 
       let eventButtons = document.querySelectorAll(".event button");
