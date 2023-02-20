@@ -311,6 +311,7 @@ def summary():
     page_data = mongo.db.page_data.insert_one({
         'client_id': client,
         'site_id': site_id,
+        'ip': request.remote_addr,
     })
     # add the events to the page data object
     for event in events:
@@ -354,7 +355,8 @@ def event_summary(event_id):
         return jsonify({'summary': 'No events found'})
     # convert to txt format
     llm = OpenAI(temperature=0)
-    text_page = str(page_data['events'])
+    text_page = str(page_data['events']) + '\n' + str(page_data['client_id']) + \
+        '\n' + str(page_data['site_id']) + '\n' + str(page_data['ip'])
 
     split_data = text_splitter.split_text(text_page)
     docs = [Document(page_content=t) for t in split_data[:3]]
